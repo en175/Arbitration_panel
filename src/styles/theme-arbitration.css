@@ -1,0 +1,168 @@
+:root {
+  /* Arbitration Theme - Refreshed with Minimalist Modern Design */
+  
+  /* Primary Brand Colors - Mapped to Design System Tokens */
+  --arb-primary: var(--accent);
+  --arb-primary-light: var(--accent-secondary);
+  --arb-primary-dark: #0041CC; /* Darker shade of electric blue */
+  
+  /* Keep gold as secondary/warning or distinction if needed, 
+     but mapped to coordinate with new system if possible. 
+     For now, keeping original gold but checking if it clashes. 
+     The prompt focuses on Electric Blue. Gold might be legacy. 
+     I'll keep it compatible but potentially less dominant. */
+  --arb-gold: #B45309; 
+  --arb-gold-light: #D97706;
+  --arb-gold-bg: #FFFBEB;
+  
+  /* Backgrounds & Surfaces */
+  --arb-bg: var(--background);
+  --arb-surface: var(--card);
+  --arb-surface-hover: var(--muted);
+  
+  /* Typography */
+  --arb-text-main: var(--foreground);
+  --arb-text-secondary: var(--muted-foreground);
+  --arb-text-muted: #94A3B8; /* Keeping this for lighter text */
+  
+  /* Borders & Shadows */
+  --arb-border: var(--border);
+  --arb-border-light: var(--muted);
+  
+  --arb-shadow: var(--shadow);
+  --arb-shadow-lg: var(--shadow-lg);
+  
+  --arb-radius: var(--radius);
+  --arb-radius-lg: 16px; /* Slightly larger for cards */
+  
+  /* Font Families */
+  --arb-font-serif: var(--font-heading);
+  --arb-font-sans: var(--font-body);
+  --arb-font-mono: var(--font-mono);
+}
+
+.arb-page {
+  background-color: var(--arb-bg);
+  min-height: 100vh;
+  font-family: var(--arb-font-sans);
+  color: var(--arb-text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Subtle texture background option */
+  background-image: radial-gradient(var(--arb-border-light) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.arb-card {
+  background: var(--arb-surface);
+  border-radius: var(--arb-radius-lg);
+  box-shadow: var(--arb-shadow);
+  border: 1px solid var(--arb-border);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden; /* Ensure glow doesn't spill if used inside */
+}
+
+.arb-card:hover {
+  box-shadow: var(--arb-shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Gradient Button Style from Prompt */
+.arb-btn-primary {
+  background: linear-gradient(135deg, var(--arb-primary) 0%, var(--arb-primary-light) 100%);
+  color: var(--accent-foreground);
+  border: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.arb-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.arb-btn-gold {
+  background-color: var(--arb-gold);
+  color: white;
+  border: none;
+}
+
+.text-serif {
+  font-family: var(--arb-font-serif);
+}
+
+.text-gold {
+  color: var(--arb-gold);
+}
+
+/* Texture & Glow Utilities (Design System: Texture Over Flatness) */
+.bg-texture-dots {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.glow-corner-primary {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: var(--arb-primary);
+  filter: blur(80px);
+  opacity: 0.08;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-top-right {
+  top: -100px;
+  right: -100px;
+}
+
+.glow-bottom-left {
+  bottom: -100px;
+  left: -100px;
+}
+
+/* Element Plus Overrides for Theme */
+:root {
+  --el-color-primary: var(--arb-primary);
+  --el-color-primary-light-3: var(--arb-primary-light);
+  --el-color-primary-light-9: rgba(0, 82, 255, 0.1);
+  --el-color-primary-dark-2: var(--arb-primary-dark);
+  --el-text-color-primary: var(--arb-text-main);
+  --el-text-color-regular: var(--arb-text-secondary);
+  --el-border-radius-base: var(--arb-radius);
+  --el-font-family: var(--arb-font-sans);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--arb-primary);
+  --el-button-border-color: var(--arb-primary);
+  --el-button-hover-bg-color: var(--arb-primary-light);
+  --el-button-hover-border-color: var(--arb-primary-light);
+  background: linear-gradient(135deg, var(--arb-primary) 0%, var(--arb-primary-light) 100%);
+  border: none;
+}
+
+.el-button--primary:hover, .el-button--primary:focus {
+  background: linear-gradient(135deg, var(--arb-primary) 0%, var(--arb-primary-light) 100%);
+  opacity: 0.9;
+}
+
+.el-tag--dark {
+  --el-tag-bg-color: var(--arb-primary);
+  --el-tag-border-color: var(--arb-primary);
+}
+
+.el-timeline-item__node--primary {
+  background-color: var(--arb-primary);
+}
+
+.el-step__head.is-process {
+  color: var(--arb-primary);
+  border-color: var(--arb-primary);
+}
+.el-step__title.is-process {
+  color: var(--arb-primary);
+  font-weight: 600;
+}

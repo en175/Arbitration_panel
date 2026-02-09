@@ -47,7 +47,9 @@ src/
   router/         路由
   services/       通用服务（http、运行时开关等）
   styles/         设计变量与全局样式（tokens/base/components）
-  views/          页面模块（按业务域拆分）
+  views/
+    preview/      预览页面与 Demo（统一存放新生成的页面）
+    RecordsView.vue 示例页面（列表-筛选-分页-详情抽屉-编辑弹窗）
 ```
 
 ## 页面开发模式（固定流程）
@@ -61,6 +63,8 @@ src/
 - 弹窗：新增/编辑表单（校验、loading、成功/失败提示）
 
 模板示例页面：`src/views/RecordsView.vue`
+
+新生成的预览页面统一放在：`src/views/preview/`
 
 ## Mock / 真实接口切换
 
