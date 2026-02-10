@@ -43,6 +43,22 @@
                 </div>
                 <div class="active-glow" v-if="formData.mode === 'recommend'"></div>
               </div>
+
+              <div 
+                class="option-card"
+                :class="{ active: formData.mode === 'delegate_arbitrators' }"
+                @click="formData.mode = 'delegate_arbitrators'"
+              >
+                <div class="icon-wrapper">
+                  <el-icon :size="32" class="option-icon"><User /></el-icon>
+                </div>
+                <div class="card-title">委托边裁选择首席</div>
+                <div class="card-desc">由双方已选定的边裁在规定时间内共同选定首席仲裁员；无法一致则进入后续指定流程。</div>
+                <div class="check-mark" v-if="formData.mode === 'delegate_arbitrators'">
+                  <el-icon><Select /></el-icon>
+                </div>
+                <div class="active-glow" v-if="formData.mode === 'delegate_arbitrators'"></div>
+              </div>
             </div>
           </el-form-item>
 
@@ -60,7 +76,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Select, UserFilled, List } from '@element-plus/icons-vue'
+import { Select, UserFilled, List, User } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const formData = ref({
@@ -104,7 +120,7 @@ const handleSubmit = () => {
 
 .selection-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 24px;
   margin-top: 8px;
 }

@@ -7,7 +7,7 @@ const state = reactive({
   caseInfo: {
     caseNo: '穗仲案字[2024]第12345号',
     caseReason: '股权转让纠纷',
-    courtType: '三人合议庭',
+    courtType: '合议庭',
     amount: '¥ 5,000,000.00',
     members: {
       applicant: '广州市天河区高新科技发展有限公司',
@@ -24,7 +24,7 @@ const state = reactive({
       roleLabel: '秘书',
       status: 'completed',
       date: '2024-02-01 10:00',
-      summary: '已确认庭型为三人合议庭，发起组庭流程。'
+      summary: '已确认庭型为合议庭，发起组庭流程。'
     },
     {
       id: 2,

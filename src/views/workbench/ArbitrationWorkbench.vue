@@ -23,7 +23,7 @@
               <span class="case-reason">{{ state.caseInfo.caseReason }}</span>
             </div>
             <div class="case-tags">
-              <el-tag effect="plain" class="glass-tag">三人仲裁庭</el-tag>
+              <el-tag effect="plain" class="glass-tag">合议庭</el-tag>
             </div>
           </div>
           
@@ -44,24 +44,50 @@
       </div>
     </header>
 
-    <!-- 2. Timeline Stepper (Horizontal Scroll) -->
+    <!-- 2. Timeline / Branch Map Switcher -->
     <div class="timeline-area glass-card animate-fade-in-up" style="animation-delay: 0.1s">
-      <HorizontalTimeline 
-        :nodes="state.timelineNodes" 
-        :active-node-id="state.activeNodeId"
-        @select="handleNodeSelect"
-      />
+      <div class="nav-panel">
+        <div class="nav-panel-left">
+          <div class="nav-panel-title">流程导航</div>
+        </div>
+        <div class="nav-panel-right">
+          <el-radio-group v-model="navMode" size="small" class="nav-toggle">
+            <el-radio-button value="timeline">时间轴</el-radio-button>
+            <el-radio-button value="branch">分支图</el-radio-button>
+          </el-radio-group>
+        </div>
+      </div>
+
+      <div v-if="navMode === 'timeline'" class="nav-content">
+        <HorizontalTimeline 
+          :nodes="state.timelineNodes" 
+          :active-node-id="state.activeNodeId"
+          @select="handleNodeSelect"
+        />
+      </div>
+      <div v-else class="nav-content nav-content-branch">
+        <ArbBranchCanvas
+          :active-node-id="state.activeNodeId"
+          :timeline-nodes="state.timelineNodes"
+          @select="handleCanvasSelect"
+        />
+      </div>
     </div>
 
     <!-- 3. Dynamic Workspace Content -->
     <main class="wb-main">
       <div class="main-container animate-fade-in-up" style="animation-delay: 0.2s">
-        <!-- Dynamic Component Loading -->
-        <component :is="currentNodeComponent" :node-data="viewingNode" />
-        
-        <!-- Default Empty State for un-implemented nodes -->
-        <div v-if="!currentNodeComponent" class="empty-workspace glass-card">
-          <el-empty description="该节点功能暂未在演示版中开放" />
+        <div class="workspace-area">
+          <div v-if="viewingNode" class="viewing-role-row">
+            <el-tag effect="dark" size="small" round>{{ viewingNode.roleLabel }}</el-tag>
+            <span class="viewing-node-title">{{ viewingNode.title }}</span>
+          </div>
+
+          <component :is="currentNodeComponent" :node-data="viewingNode" />
+
+          <div v-if="!currentNodeComponent" class="empty-workspace glass-card">
+            <el-empty description="该节点功能暂未在演示版中开放" />
+          </div>
         </div>
       </div>
     </main>
@@ -69,10 +95,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Calendar } from '@element-plus/icons-vue'
 import { useArbitration } from './composables/useArbitration'
 import HorizontalTimeline from './components/HorizontalTimeline.vue'
+import ArbBranchCanvas from '../../modules/branch-tree/ArbBranchCanvas.vue'
 
 // Import Node Components
 import NodeStart from './nodes/NodeStart.vue'         // Node 1
@@ -90,9 +117,14 @@ import NodeDirectorDesignate from './nodes/NodeDirectorDesignate.vue' // Node 11
 import NodeFinish from './nodes/NodeFinish.vue'       // Node 12
 
 const { state, viewingNode, setActiveNode } = useArbitration()
+const navMode = ref('timeline')
 
 const handleNodeSelect = (node) => {
   setActiveNode(node.id)
+}
+
+const handleCanvasSelect = (id) => {
+  setActiveNode(id)
 }
 
 const currentNodeComponent = computed(() => {
@@ -352,14 +384,56 @@ const currentNodeComponent = computed(() => {
 .timeline-area {
   margin-top: -40px; /* Pull up to overlap */
   z-index: 10;
-  max-width: 1200px;
+  max-width: 1400px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
   position: relative;
   /* Glassmorphism applied via glass-card class in template, override specific padding/radius here */
   border-radius: 16px;
-  padding: 4px 0;
+  padding: 12px;
+}
+
+.nav-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 8px 10px;
+}
+
+.nav-panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--arb-text-primary);
+  font-family: var(--arb-font-serif);
+}
+
+.nav-toggle :deep(.el-radio-button__inner) {
+  border-color: rgba(30, 58, 138, 0.18);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 14px;
+}
+
+.nav-toggle :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.92), rgba(59, 130, 246, 0.88));
+  border-color: transparent;
+  box-shadow: 0 10px 28px rgba(30, 58, 138, 0.22);
+}
+
+.nav-toggle :deep(.el-radio-button__inner:hover) {
+  border-color: rgba(30, 58, 138, 0.32);
+}
+
+.nav-content {
+  width: 100%;
+}
+
+.nav-content-branch {
+  height: 300px;
+  padding: 6px 6px 10px;
 }
 
 .wb-main {
@@ -369,8 +443,25 @@ const currentNodeComponent = computed(() => {
 }
 
 .main-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+.workspace-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.viewing-role-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.viewing-node-title {
+  color: var(--arb-text-secondary);
+  font-size: 13px;
 }
 
 .empty-workspace {
