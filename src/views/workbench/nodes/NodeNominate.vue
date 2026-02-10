@@ -3,7 +3,7 @@
     <div class="node-card glass-card">
       <div class="card-header-wrapper">
         <div class="card-header">
-          <span class="title">当事人提交选定</span>
+          <span class="title">被申请人选择边裁</span>
           <el-tag type="warning" effect="dark" round>进行中</el-tag>
         </div>
         <div class="header-divider"></div>
@@ -11,7 +11,7 @@
       
       <div class="selection-grid">
         <!-- 申请人 (已提交) -->
-        <div class="party-box applicant">
+        <div class="party-box applicant" v-if="false">
           <div class="box-header">
             <div class="header-left">
               <div class="icon-circle applicant-icon">

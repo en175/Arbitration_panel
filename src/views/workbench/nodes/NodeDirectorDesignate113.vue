@@ -1,7 +1,7 @@
 <template>
   <div class="node-workspace">
     <div class="workspace-header">
-      <h2>{{ nodeTitle }}</h2>
+      <h2>主任最终指定</h2>
       <div class="header-actions">
         <!-- Removed Dispute Resolution Tag -->
       </div>
@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <div class="main-content-grid">
+      <div class="main-content-grid" v-if="false">
         <div class="roster-column">
           <div class="roster-card">
             <div class="section-label">
@@ -123,6 +123,11 @@
           </div>
         </div>
       </div>
+      <div class="confirm-row">
+        <el-button type="primary" size="large" class="confirm-btn white-text-btn" @click="handleConfirm">
+          确认指定并签发
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -133,20 +138,13 @@ import { Histogram, Operation, Select } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useArbitration } from '../composables/useArbitration'
 
-const props = defineProps({
-  nodeData: {
-    type: Object,
-    default: null
-  }
-})
-
 const { setActiveNode } = useArbitration()
 
 const tableData = ref([
   {
     role: '首席',
     candidates: [
-      { name: '郭建国', type: 'blue', tags: ['博士', '男', '金融证券'], selected: true }
+      { name: '郭建国', type: 'green', tags: ['博士', '男', '金融证券'], selected: true }
     ]
   },
   {
@@ -179,8 +177,6 @@ const arbitratorList = [
   { name: '李慧琳', education: '博士', gender: '女', domains: ['知识产权', '国贸'] }
 ]
 
-const nodeTitle = computed(() => props.nodeData?.title || '主任最终指定')
-
 const displayArbitratorList = computed(() => {
   const query = searchQuery.value.trim()
   const domainMap = { finance: '金融' }
@@ -198,7 +194,7 @@ const displayArbitratorList = computed(() => {
 
 const displayTableData = computed(() => {
   return tableData.value.map((roleGroup, index) => {
-    if (index !== 0) {
+    if (index !== -1) {
       return roleGroup
     }
 
@@ -259,10 +255,10 @@ const handleSearch = () => {
 }
 
 const handleConfirm = () => {
-  if (!activeCandidateName.value) {
-    ElMessage.warning('请先在名册中选定仲裁员')
-    return
-  }
+  // if (!activeCandidateName.value) {
+  //   ElMessage.warning('请先在名册中选定仲裁员')
+  //   return
+  // }
 
   ElMessageBox.confirm(
     `确定指定 ${activeCandidateName.value} 为本案首席仲裁员吗？此操作不可撤销。`,

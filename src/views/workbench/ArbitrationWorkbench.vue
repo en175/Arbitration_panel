@@ -45,17 +45,22 @@
     </header>
 
     <!-- 2. Timeline / Branch Map Switcher -->
-    <div class="timeline-area glass-card animate-fade-in-up" style="animation-delay: 0.1s">
-      <div class="nav-panel">
+    <div
+      ref="timelineAreaRef"
+      class="timeline-area glass-card animate-fade-in-up"
+      :class="{ 'is-dragging': isDragging }"
+      :style="[timelinePositionStyle, { animationDelay: '0.1s' }]"
+    >
+      <div class="nav-panel" @pointerdown="startDrag">
         <div class="nav-panel-left">
           <div class="nav-panel-title">流程导航</div>
         </div>
-        <div class="nav-panel-right">
+        <!-- <div class="nav-panel-right">
           <el-radio-group v-model="navMode" size="small" class="nav-toggle">
             <el-radio-button value="timeline">时间轴</el-radio-button>
             <el-radio-button value="branch">分支图</el-radio-button>
           </el-radio-group>
-        </div>
+        </div> -->
       </div>
 
       <div v-if="navMode === 'timeline'" class="nav-content">
@@ -95,7 +100,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, onBeforeUnmount, ref } from 'vue'
 import { Calendar } from '@element-plus/icons-vue'
 import { useArbitration } from './composables/useArbitration'
 import HorizontalTimeline from './components/HorizontalTimeline.vue'
@@ -112,12 +117,33 @@ import NodeDistribute from './nodes/NodeDistribute.vue' // Node 7
 import NodeRanking from './nodes/NodeRanking.vue'     // Node 8
 import NodeResult from './nodes/NodeResult.vue'       // Node 9
 import NodeReview from './nodes/NodeReview.vue'
+import NodeReviewJoint from './nodes/NodeReviewJoint.vue'
+import NodeReview62 from './nodes/NodeReview62.vue'
+import NodeReview63 from './nodes/NodeReview63.vue'
 import NodeReviewLeadership from './nodes/NodeReviewLeadership.vue'
+import NodeDirectorConfirm from './nodes/NodeDirectorConfirm.vue'
+import NodeDirectorConfirmAlt from './nodes/NodeDirectorConfirmAlt.vue'
 import NodeDirectorDesignate from './nodes/NodeDirectorDesignate.vue' // Node 11
 import NodeFinish from './nodes/NodeFinish.vue'       // Node 12
+import NodeChiefSelect from './nodes/NodeChiefSelect.vue'
+import NodeChiefConfirm from './nodes/NodeChiefConfirm.vue'
+import NodeReview64 from './nodes/NodeReview64.vue'
+import NodeDirectorConfirm77 from './nodes/NodeDirectorConfirm77.vue'
+import NodeReview66 from './nodes/NodeReview66.vue'
+import NodeDirectorDesignate113 from './nodes/NodeDirectorDesignate113.vue'
+import NodeDirectorDesignate17 from './nodes/NodeDirectorDesignate17.vue'
 
 const { state, viewingNode, setActiveNode } = useArbitration()
-const navMode = ref('timeline')
+const navMode = ref('branch')
+const timelineAreaRef = ref(null)
+const isDragging = ref(false)
+const dragOffset = ref({ x: 0, y: 0 })
+const position = ref({ x: 0, y: 0 })
+
+const timelinePositionStyle = computed(() => ({
+  left: `${position.value.x}px`,
+  top: `${position.value.y}px`
+}))
 
 const handleNodeSelect = (node) => {
   setActiveNode(node.id)
@@ -126,6 +152,71 @@ const handleNodeSelect = (node) => {
 const handleCanvasSelect = (id) => {
   setActiveNode(id)
 }
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
+
+const syncInitialPosition = () => {
+  const el = timelineAreaRef.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const parentRect = el.offsetParent?.getBoundingClientRect()
+  const baseLeft = parentRect ? rect.left - parentRect.left : rect.left
+  const baseTop = parentRect ? rect.top - parentRect.top : rect.top
+  position.value = { x: baseLeft, y: baseTop }
+}
+
+const startDrag = (event) => {
+  if (event.button !== 0) return
+  if (event.target?.closest?.('.nav-toggle')) return
+  const el = timelineAreaRef.value
+  if (!el) return
+  isDragging.value = true
+  const rect = el.getBoundingClientRect()
+  dragOffset.value = {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top
+  }
+  window.addEventListener('pointermove', handleDragMove)
+  window.addEventListener('pointerup', endDrag)
+  window.addEventListener('pointercancel', endDrag)
+  event.preventDefault()
+}
+
+const handleDragMove = (event) => {
+  if (!isDragging.value) return
+  const el = timelineAreaRef.value
+  if (!el) return
+  const parentRect = el.offsetParent?.getBoundingClientRect()
+  const baseLeft = parentRect?.left ?? 0
+  const baseTop = parentRect?.top ?? 0
+  const maxX = (parentRect?.width ?? window.innerWidth) - el.offsetWidth
+  const maxY = (parentRect?.height ?? window.innerHeight) - el.offsetHeight
+  const rawX = event.clientX - baseLeft - dragOffset.value.x
+  const rawY = event.clientY - baseTop - dragOffset.value.y
+  position.value = {
+    x: clamp(rawX, 0, Math.max(0, maxX)),
+    y: clamp(rawY, 0, Math.max(0, maxY))
+  }
+}
+
+const endDrag = () => {
+  if (!isDragging.value) return
+  isDragging.value = false
+  window.removeEventListener('pointermove', handleDragMove)
+  window.removeEventListener('pointerup', endDrag)
+  window.removeEventListener('pointercancel', endDrag)
+}
+
+onMounted(async () => {
+  await nextTick()
+  syncInitialPosition()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pointermove', handleDragMove)
+  window.removeEventListener('pointerup', endDrag)
+  window.removeEventListener('pointercancel', endDrag)
+})
 
 const currentNodeComponent = computed(() => {
   const id = viewingNode.value?.id
@@ -136,13 +227,25 @@ const currentNodeComponent = computed(() => {
     case 4: return NodeDisclosure // Swapped (was 5)
     case 5: return NodeCheck      // Swapped (was 4)
     case 6: return NodeReview     // Moved (was 11)
+    case 6.1: return NodeReviewJoint
+    case 6.2: return NodeReview62
+    case 6.3: return NodeReview63
+    case 6.4: return NodeReview64
     case 6.5: return NodeReviewLeadership
+    case 6.6: return NodeReview66
     case 7: return NodeDirector   // Was 6
+    case 7.1: return NodeDirectorConfirm
+    case 7.7: return NodeDirectorConfirm77
     case 8: return NodeDistribute // Was 7
     case 9: return NodeRanking    // Was 8
     case 10: return NodeResult    // Was 9
+    case 11.1: return NodeChiefConfirm
+    case 11.2: return NodeDirectorConfirmAlt
+    case 11.3: return NodeDirectorDesignate113
     case 11: return NodeDirectorDesignate // New Node
     case 12: return NodeFinish    // Was 11
+    case 14: return NodeChiefSelect
+    case 17: return NodeDirectorDesignate17
     default: return null
   }
 })
@@ -159,9 +262,11 @@ const currentNodeComponent = computed(() => {
     radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%), 
     radial-gradient(circle at 85% 30%, rgba(180, 83, 9, 0.05), transparent 25%);
   padding-bottom: 40px; /* Add some bottom padding for scrolling */
+  position: relative;
 }
 
 .wb-header {
+  min-height: 600px !important;
   position: relative;
   background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1E40AF 100%);
   color: white;
@@ -382,13 +487,10 @@ const currentNodeComponent = computed(() => {
 }
 
 .timeline-area {
-  margin-top: -40px; /* Pull up to overlap */
   z-index: 10;
-  max-width: 1400px;
+  max-width: 100vw;
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  position: relative;
+  position: absolute;
   /* Glassmorphism applied via glass-card class in template, override specific padding/radius here */
   border-radius: 16px;
   padding: 12px;
@@ -400,6 +502,12 @@ const currentNodeComponent = computed(() => {
   justify-content: space-between;
   gap: 16px;
   padding: 8px 8px 10px;
+  cursor: grab;
+  user-select: none;
+}
+
+.is-dragging .nav-panel {
+  cursor: grabbing;
 }
 
 .nav-panel-title {
@@ -432,7 +540,7 @@ const currentNodeComponent = computed(() => {
 }
 
 .nav-content-branch {
-  height: 300px;
+  height: 500px;
   padding: 6px 6px 10px;
 }
 

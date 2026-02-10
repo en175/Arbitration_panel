@@ -2,7 +2,7 @@
   <div class="node-workspace">
     <div class="workspace-header">
       <div class="header-content">
-        <h2 class="gradient-text">分管委领导审核</h2>
+        <h2 class="gradient-text">部门负责人推荐边裁</h2>
         <div class="header-right">
            <div class="status-badge">
              <div class="pulse-dot"></div>
@@ -41,7 +41,7 @@
                   :class="person.type"
                 >
                   <div v-if="person.selectedBy" class="person-selection-tag">
-                    {{ person.selectedBy === 'applicant' ? '申请人选定' : '被申请人选定' }}
+                    <!-- {{ person.selectedBy === 'applicant' ? '申请人选定' : '被申请人选定' }} -->
                   </div>
                   <div class="person-avatar">
                     {{ person.name.charAt(0) }}
@@ -55,7 +55,7 @@
                     </div>
                   </div>
                   <el-button
-                    v-if="person.type === 'orange'"
+                    v-if="person.type === 'blue'"
                     circle
                     type="primary"
                     size="small"
@@ -106,10 +106,10 @@
       <div class="audit-card glass-card">
         <div class="audit-header">
           <h3>审核意见</h3>
-          <div class="audit-switch">
+          <!-- <div class="audit-switch">
             <span>推荐名单</span>
             <el-switch v-model="includeRecommendation" />
-          </div>
+          </div> -->
         </div>
         <el-input
           v-model="comment"
@@ -183,22 +183,22 @@ const includeRecommendation = ref(false)
 const recommendationText = '建议主任采用推荐5人名单形式选择首席仲裁员'
 
 const tableData = ref([
+  // { 
+  //   role: '首席', 
+  //   candidates: [
+  //     { name: '郭建国', type: 'blue', tags: ['博士', '男', '金融证券'] }
+  //   ]
+  // },
   { 
-    role: '首席', 
+    role: '仲裁员(边裁)', 
     candidates: [
-      { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+      { name: '林志远', type: 'blue', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
     ]
   },
   { 
     role: '仲裁员(边裁)', 
     candidates: [
-      { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
-    ]
-  },
-  { 
-    role: '仲裁员(边裁)', 
-    candidates: [
-      { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
+      { name: '梁伟诚', type: 'blue', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
     ]
   }
 ])
@@ -460,11 +460,6 @@ watch(includeRecommendation, (enabled) => {
   border-color: #e1f3d8;
 }
 
-.person-card.orange {
-  background: linear-gradient(145deg, #fdf6ec 0%, #fff 100%);
-  border-color: #f3d19e;
-}
-
 .person-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(0,0,0,0.05);
@@ -485,7 +480,6 @@ watch(includeRecommendation, (enabled) => {
 
 .person-card.blue .person-avatar { background: linear-gradient(135deg, #409eff, #79bbff); }
 .person-card.green .person-avatar { background: linear-gradient(135deg, #67c23a, #95d475); }
-.person-card.orange .person-avatar { background: linear-gradient(135deg, #e6a23c, #f3d19e); }
 
 .person-info { flex: 1; }
 

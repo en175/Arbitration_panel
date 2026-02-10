@@ -1,10 +1,8 @@
 <template>
   <div class="node-workspace">
     <div class="workspace-header">
-      <h2>{{ nodeTitle }}</h2>
-      <div class="header-actions">
-        <!-- Removed Dispute Resolution Tag -->
-      </div>
+      <h2>首席确认</h2>
+      <div class="header-actions"></div>
     </div>
 
     <div class="designate-container">
@@ -16,6 +14,8 @@
             <div class="legend-item green"><span class="dot"></span>当事人选定</div>
             <div class="legend-item orange"><span class="dot"></span>上一级审批人推荐</div>
             <div class="legend-item red"><span class="dot"></span>变更前组庭仲裁员</div>
+            <div class="legend-item yellow"><span class="dot"></span>边裁选定一致</div>
+            
           </div>
         </div>
 
@@ -53,75 +53,10 @@
         </div>
       </div>
 
-      <div class="main-content-grid">
-        <div class="roster-column">
-          <div class="roster-card">
-            <div class="section-label">
-              <el-icon><Histogram /></el-icon> 仲裁员名册
-            </div>
-            <div class="dialog-search-header">
-              <el-input v-model="searchQuery" placeholder="输入姓名搜索..." prefix-icon="Search" class="search-input" />
-              <div class="filters">
-                <el-select v-model="filterDomain" placeholder="领域" clearable><el-option label="金融" value="finance" /></el-select>
-                <el-select v-model="filterEducation" placeholder="学历" clearable><el-option label="博士" value="phd" /></el-select>
-              </div>
-              <el-button type="primary" @click="handleSearch">查询</el-button>
-            </div>
-
-            <div class="dialog-grid">
-              <div
-                v-for="arb in displayArbitratorList"
-                :key="arb.name"
-                class="dialog-card"
-                :class="{ selected: activeCandidateName === arb.name }"
-              >
-                <div class="d-header">
-                  <div class="d-avatar">{{ arb.name.charAt(0) }}</div>
-                  <div class="d-info">
-                    <div class="d-name">{{ arb.name }}</div>
-                    <div class="d-meta">{{ arb.education }} · {{ arb.gender }}</div>
-                  </div>
-                  <el-button
-                    circle
-                    type="primary"
-                    size="small"
-                    @click="selectArbitrator(arb)"
-                  ><el-icon><Select /></el-icon></el-button>
-                </div>
-                <div class="d-tags">
-                  <span v-for="tag in arb.domains" :key="tag">{{ tag }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="confirm-row">
-            <el-button type="primary" size="large" class="confirm-btn white-text-btn" @click="handleConfirm">
-              确认指定并签发
-            </el-button>
-          </div>
-        </div>
-
-        <div class="timeline-column">
-          <div class="info-card-modern oa-timeline-card">
-            <div class="card-header">
-              <span class="icon-wrapper"><el-icon><Operation /></el-icon></span>
-              <span class="title">OA审批流</span>
-            </div>
-            <div class="oa-timeline">
-              <div v-for="(item, index) in oaTimeline" :key="index" class="oa-item">
-                <div class="oa-marker"></div>
-                <div class="oa-content">
-                  <div class="oa-title">
-                    <span class="oa-role">{{ item.role }}</span>
-                    <span class="oa-time">{{ item.time }}</span>
-                  </div>
-                  <div class="oa-opinion">{{ item.opinion }}</div>
-                  <div class="oa-recommend">{{ item.recommendation }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="confirm-row">
+        <el-button type="primary" size="large" class="confirm-btn white-text-btn" @click="handleConfirm">
+          确认并签发
+        </el-button>
       </div>
     </div>
   </div>
@@ -129,16 +64,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Histogram, Operation, Select } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useArbitration } from '../composables/useArbitration'
-
-const props = defineProps({
-  nodeData: {
-    type: Object,
-    default: null
-  }
-})
 
 const { setActiveNode } = useArbitration()
 
@@ -146,7 +73,7 @@ const tableData = ref([
   {
     role: '首席',
     candidates: [
-      { name: '郭建国', type: 'blue', tags: ['博士', '男', '金融证券'], selected: true }
+      { name: '陈雅芳', type: 'yellow', tags: ['硕士', '女', '金融证券'], selected: true }
     ]
   },
   {
@@ -179,8 +106,6 @@ const arbitratorList = [
   { name: '李慧琳', education: '博士', gender: '女', domains: ['知识产权', '国贸'] }
 ]
 
-const nodeTitle = computed(() => props.nodeData?.title || '主任最终指定')
-
 const displayArbitratorList = computed(() => {
   const query = searchQuery.value.trim()
   const domainMap = { finance: '金融' }
@@ -198,7 +123,7 @@ const displayArbitratorList = computed(() => {
 
 const displayTableData = computed(() => {
   return tableData.value.map((roleGroup, index) => {
-    if (index !== 0) {
+    if (index !== -1) {
       return roleGroup
     }
 
@@ -222,33 +147,6 @@ const displayTableData = computed(() => {
     }
   })
 })
-
-const oaTimeline = [
-  {
-    role: '呈批人 · 秘书',
-    time: '2025-11-27 15:31:07',
-    opinion: '提交',
-    recommendation: '申请人未选定首席仲裁员，选定齐华修（君安世纪（台州））为仲裁员；被申请人未选定首席仲裁员，未选定仲裁员。'
-  },
-  {
-    role: '审批人 · 部门负责人',
-    time: '2025-11-27 16:10:24',
-    opinion: '同意推进',
-    recommendation: '建议主任优先采用推荐名单路径，结合当事人选定结果进行校验。'
-  },
-  {
-    role: '审批人 · 分管委领导',
-    time: '2025-11-27 17:05:12',
-    opinion: '通过',
-    recommendation: '同意，必要时补充涉外经验仲裁员。'
-  },
-  {
-    role: '当事人',
-    time: '2025-11-27 17:12:45',
-    opinion: '',
-    recommendation: '排序不一致，需主任指定。'
-  }
-]
 
 const selectArbitrator = (arb) => {
   activeCandidateName.value = arb.name
@@ -370,6 +268,7 @@ const handleConfirm = () => {
 .legend-item.green .dot { background: #67c23a; }
 .legend-item.orange .dot { background: #e6a23c; }
 .legend-item.red .dot { background: #f56c6c; }
+.legend-item.yellow .dot { background: #facc15; }
 
 .candidate-list {
   display: grid;
@@ -446,6 +345,11 @@ const handleConfirm = () => {
   border-color: #fee2e2;
 }
 
+.person-card.yellow {
+  background: linear-gradient(145deg, #fef9c3 0%, #fff 100%);
+  border-color: #fde68a;
+}
+
 .person-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(0,0,0,0.05);
@@ -468,6 +372,7 @@ const handleConfirm = () => {
 .person-card.green .person-avatar { background: linear-gradient(135deg, #67c23a, #95d475); }
 .person-card.orange .person-avatar { background: linear-gradient(135deg, #e6a23c, #f3d19e); }
 .person-card.red .person-avatar { background: linear-gradient(135deg, #f56c6c, #fca5a5); }
+.person-card.yellow .person-avatar { background: linear-gradient(135deg, #facc15, #fde68a); }
 
 .person-info { flex: 1; }
 

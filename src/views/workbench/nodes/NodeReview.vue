@@ -188,7 +188,7 @@ const recommendationText = '建议主任采用推荐5人名单形式选择首席
 
 const tableData = ref([
   { 
-    role: '首席(独任)', 
+    role: '首席', 
     candidates: [
       { name: '郭建国', type: 'blue', tags: ['博士', '男', '金融证券'] },
       // { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' },

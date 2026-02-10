@@ -58,13 +58,43 @@
             </el-timeline-item>
           </el-timeline>
         </div>
+
+        <div class="action-footer">
+          <div class="action-buttons">
+            <el-button size="large" class="action-btn" @click="jumpToJointSelect">
+              当事人双方约定共同选定边裁
+            </el-button>
+            <el-button size="large" class="action-btn" @click="jumpToDelegateSelect">
+              当事人委托边裁选择首裁
+            </el-button>
+            <el-button size="large" class="action-btn" @click="jumpToNotAgreed">
+              当事人未约定一致
+            </el-button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useArbitration } from '../composables/useArbitration'
+
 defineProps(['nodeData'])
+
+const { setActiveNode } = useArbitration()
+
+const jumpToJointSelect = () => {
+  setActiveNode(6.1)
+}
+
+const jumpToDelegateSelect = () => {
+  setActiveNode(2)
+}
+
+const jumpToNotAgreed = () => {
+  setActiveNode(2)
+}
 </script>
 
 <style scoped>
@@ -203,6 +233,24 @@ defineProps(['nodeData'])
 
 .custom-timeline {
   padding-left: 8px;
+}
+
+.action-footer {
+  margin-top: 32px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.action-btn {
+  border-radius: 999px;
+  padding: 0 24px;
+  height: 40px;
+  font-weight: 600;
 }
 
 .log-card {

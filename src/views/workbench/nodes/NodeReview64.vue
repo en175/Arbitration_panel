@@ -40,9 +40,9 @@
                   class="person-card"
                   :class="person.type"
                 >
-                  <div v-if="person.selectedBy" class="person-selection-tag">
+                  <!-- <div v-if="person.selectedBy" class="person-selection-tag">
                     {{ person.selectedBy === 'applicant' ? '申请人选定' : '被申请人选定' }}
-                  </div>
+                  </div> -->
                   <div class="person-avatar">
                     {{ person.name.charAt(0) }}
                   </div>
@@ -55,7 +55,7 @@
                     </div>
                   </div>
                   <el-button
-                    v-if="person.type === 'orange'"
+                    v-if="person.type === 'blue'"
                     circle
                     type="primary"
                     size="small"
@@ -106,10 +106,10 @@
       <div class="audit-card glass-card">
         <div class="audit-header">
           <h3>审核意见</h3>
-          <div class="audit-switch">
+          <!-- <div class="audit-switch">
             <span>推荐名单</span>
             <el-switch v-model="includeRecommendation" />
-          </div>
+          </div> -->
         </div>
         <el-input
           v-model="comment"
@@ -183,22 +183,22 @@ const includeRecommendation = ref(false)
 const recommendationText = '建议主任采用推荐5人名单形式选择首席仲裁员'
 
 const tableData = ref([
+  // { 
+  //   role: '首席', 
+  //   candidates: [
+  //     { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+  //   ]
+  // },
   { 
-    role: '首席', 
+    role: '仲裁员(边裁)', 
     candidates: [
-      { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+      { name: '林志远', type: 'blue', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
     ]
   },
   { 
     role: '仲裁员(边裁)', 
     candidates: [
-      { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
-    ]
-  },
-  { 
-    role: '仲裁员(边裁)', 
-    candidates: [
-      { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
+      { name: '梁伟诚', type: 'blue', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
     ]
   }
 ])

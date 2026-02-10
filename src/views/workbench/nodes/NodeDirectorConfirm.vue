@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <div class="bento-grid">
+    <div class="bento-grid" v-if="false">
       <div class="main-column">
         <div class="path-selection-area">
           <div 
@@ -206,11 +206,6 @@
                 </div>
               </div>
             </div>
-            <div style="display: flex;justify-content: center;">
-              <el-button type="primary" size="large" class="submit-main-btn1" @click="submitSpecify" :disabled="candidates.length < 5">
-                确认指定
-              </el-button>
-            </div>
           </div>
         </transition>
       </div>
@@ -271,7 +266,11 @@
         </div> -->
       </div>
     </div>
-
+    <div class="submit-section">
+      <el-button type="primary" size="large" class="submit-main-btn" @click="submit" :disabled="candidates.length < 5">
+        确认推荐名单
+      </el-button>
+    </div>
     <el-dialog
       v-model="showMoreDialog"
       title="仲裁员名册查询"
@@ -327,12 +326,12 @@ const { setActiveNode } = useArbitration()
 
 const pathType = ref('A')
 const tableData = ref([
-  { 
-    role: '首席', 
-    candidates: [
-      { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
-    ]
-  },
+  // { 
+  //   role: '首席', 
+  //   candidates: [
+  //     { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+  //   ]
+  // },
   { 
     role: '仲裁员(边裁)', 
     candidates: [
@@ -434,13 +433,7 @@ const submit = () => {
   ElMessage.success('决策已提交，流程流转至：确认推荐名单')
   setTimeout(() => {
     setActiveNode(8) // Go to Distribute Node (Node 8)
-  }, 300)
-}
-
-const submitSpecify = () => {
-    setTimeout(() => {
-      setActiveNode(17) // Go to Distribute Node (Node 8)
-    }, 300)
+  }, 1000)
 }
 </script>
 
@@ -531,7 +524,7 @@ const submitSpecify = () => {
 .review-layout .legend-item.red .dot { background: #f56c6c; }
 .review-layout .candidate-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 .review-layout .role-group-card {
@@ -548,7 +541,7 @@ const submitSpecify = () => {
 }
 .review-layout .candidates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 .review-layout .person-card {
@@ -1086,14 +1079,13 @@ const submitSpecify = () => {
   border-radius: 4px;
   color: #64748b;
 }
-.submit-main-btn {
+.submit-section {
   width: 100%;
-  font-weight: 700;
-  letter-spacing: 1px;
+  display: flex;
+  justify-content: center;
 }
-.submit-main-btn1 {
+.submit-main-btn {
   width: 30%;
-  margin-top: 24px;
   font-weight: 700;
   letter-spacing: 1px;
 }

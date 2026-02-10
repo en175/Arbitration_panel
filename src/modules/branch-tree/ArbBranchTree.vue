@@ -74,8 +74,8 @@ const treeData = computed(() => [
           {
             key: 'way-a',
             label: '首席+边裁都已选定',
-            targetId: 6,
-            roleLabel: roleLabelByTargetId(6),
+            targetId: 6.1,
+            roleLabel: roleLabelByTargetId(6.1),
             children: [
               {
                 key: 'way-a-dept',
@@ -122,8 +122,8 @@ const treeData = computed(() => [
                     roleLabel: roleLabelByTargetId(7),
                     children: [
                       {
-                        key: 'way-b-chief-review',
-                        label: '主任审核',
+                        key: 'way-b-chief-confirm',
+                        label: '主任确认',
                         targetId: 7,
                         roleLabel: roleLabelByTargetId(7)
                       },
@@ -132,12 +132,6 @@ const treeData = computed(() => [
                         label: '退回',
                         targetId: 2,
                         roleLabel: roleLabelByTargetId(2)
-                      },
-                      {
-                        key: 'way-b-chief-confirm',
-                        label: '确认边裁',
-                        targetId: 7,
-                        roleLabel: roleLabelByTargetId(7)
                       },
                       {
                         key: 'way-b-chief-notify',
@@ -160,8 +154,8 @@ const treeData = computed(() => [
                                   {
                                     key: 'way-b-chief-final',
                                     label: '首席确认',
-                                    targetId: 11,
-                                    roleLabel: roleLabelByTargetId(11)
+                                    targetId: 11.1,
+                                    roleLabel: roleLabelByTargetId(11.1)
                                   }
                                 ]
                               },
@@ -186,8 +180,8 @@ const treeData = computed(() => [
                                   {
                                     key: 'way-b-chief-approve-dir',
                                     label: '主任确认',
-                                    targetId: 11,
-                                    roleLabel: roleLabelByTargetId(11)
+                                    targetId: 11.2,
+                                    roleLabel: roleLabelByTargetId(11.2)
                                   }
                                 ]
                               }

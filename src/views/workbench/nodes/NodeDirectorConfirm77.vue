@@ -2,11 +2,11 @@
   <div class="node-workspace">
     <div class="workspace-header">
       <div class="header-content">
-        <h2 class="gradient-text">分管委领导审核</h2>
+        <h2 class="gradient-text">主任确认</h2>
         <div class="header-right">
            <div class="status-badge">
              <div class="pulse-dot"></div>
-             <span>待审核</span>
+             <span>待确认</span>
            </div>
         </div>
       </div>
@@ -40,9 +40,9 @@
                   class="person-card"
                   :class="person.type"
                 >
-                  <div v-if="person.selectedBy" class="person-selection-tag">
+                  <!-- <div v-if="person.selectedBy" class="person-selection-tag">
                     {{ person.selectedBy === 'applicant' ? '申请人选定' : '被申请人选定' }}
-                  </div>
+                  </div> -->
                   <div class="person-avatar">
                     {{ person.name.charAt(0) }}
                   </div>
@@ -103,7 +103,12 @@
           </div>
         </div>
       </div>
-      <div class="audit-card glass-card">
+      <div class="confirm-row">
+        <el-button type="primary" size="large" class="confirm-btn white-text-btn" @click="handleConfirm">
+          确认并签发
+        </el-button>
+      </div>
+      <!-- <div class="audit-card glass-card">
         <div class="audit-header">
           <h3>审核意见</h3>
           <div class="audit-switch">
@@ -127,7 +132,7 @@
             <el-icon><Check /></el-icon> 同意并提交
           </el-button>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 
@@ -183,22 +188,22 @@ const includeRecommendation = ref(false)
 const recommendationText = '建议主任采用推荐5人名单形式选择首席仲裁员'
 
 const tableData = ref([
+  // { 
+  //   role: '首席', 
+  //   candidates: [
+  //     { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+  //   ]
+  // },
   { 
-    role: '首席', 
+    role: '仲裁员(边裁)', 
     candidates: [
-      { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+      { name: '林志远', type: 'orange', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
     ]
   },
   { 
     role: '仲裁员(边裁)', 
     candidates: [
-      { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
-    ]
-  },
-  { 
-    role: '仲裁员(边裁)', 
-    candidates: [
-      { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
+      { name: '梁伟诚', type: 'orange', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
     ]
   }
 ])
@@ -235,7 +240,27 @@ const displayArbitratorList = computed(() => {
     return matchName && matchDomain && matchEducation
   })
 })
+const handleConfirm = () => {
+  if (!activeCandidateName.value) {
+    ElMessage.warning('请先在名册中选定仲裁员')
+    return
+  }
 
+  ElMessageBox.confirm(
+    `确定指定 ${activeCandidateName.value} 为本案首席仲裁员吗？此操作不可撤销。`,
+    '最终指定确认',
+    {
+      confirmButtonText: '确定指定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(() => {
+    ElMessage.success('指定成功，已生成组庭通知书')
+    setTimeout(() => {
+      setActiveNode(12)
+    }, 1000)
+  })
+}
 const openSwitchDialog = (roleIndex, personIndex) => {
   activeTarget.value = { roleIndex, personIndex }
   activeCandidateName.value = tableData.value[roleIndex].candidates[personIndex]?.name || ''
@@ -693,5 +718,18 @@ watch(includeRecommendation, (enabled) => {
   padding: 2px 8px;
   border-radius: 4px;
   color: #64748b;
+}
+
+.confirm-row {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.confirm-btn {
+  width: 320px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
 }
 </style>

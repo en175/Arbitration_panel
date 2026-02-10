@@ -44,6 +44,14 @@ const state = reactive({
       date: '2024-02-03 09:15',
       summary: '申请人已提交；被申请人已提交。'
     },
+    {
+      id: 14,
+      title: '边裁选定首席',
+      role: 'arbitrator',
+      roleLabel: '边裁',
+      status: 'pending',
+      summary: '边裁一已选定首席，等待边裁二确认。'
+    },
     // {
     //   id: 4,
     //   title: '边裁披露与接受', // Was Node 5
@@ -72,7 +80,52 @@ const state = reactive({
       summary: '已审核通过，建议主任提供推荐名单。'
     },
     {
+      id: 6.1,
+      title: '立案部长审核',
+      role: 'secretary',
+      roleLabel: '立案部长',
+      status: 'completed',
+      date: '2024-02-04 14:00',
+      summary: '已审核通过，建议主任提供推荐名单。'
+    },
+    {
+      id: 6.2,
+      title: '秘书提交名单',
+      role: 'secretary',
+      roleLabel: '秘书',
+      status: 'completed',
+      date: '2024-02-04 14:00',
+      summary: '已审核通过，建议主任提供推荐名单。'
+    },
+    {
+      id: 6.3,
+        title: '立案部长审核', // Was Node 11 (Dept Head Review), moved here
+        role: 'secretary', // Or Dept Head
+        roleLabel: '立案部长',
+        status: 'completed',
+        date: '2024-02-04 14:00',
+        summary: '已审核通过，建议主任提供推荐名单。'
+    },
+    {
+      id: 6.4,
+      title: '分管委领导', // Was Node 11 (Dept Head Review), moved here
+      role: 'secretary', // Or Dept Head
+      roleLabel: '分管委领导',
+      status: 'completed',
+      date: '2024-02-04 14:00',
+      summary: '已审核通过，建议主任提供推荐名单。'
+    },
+    {
       id: 6.5,
+      title: '分管委领导', // Was Node 11 (Dept Head Review), moved here
+      role: 'secretary', // Or Dept Head
+      roleLabel: '分管委领导',
+      status: 'completed',
+      date: '2024-02-04 14:00',
+      summary: '已审核通过，建议主任提供推荐名单。'
+    },
+    {
+      id: 6.6,
       title: '分管委领导', // Was Node 11 (Dept Head Review), moved here
       role: 'secretary', // Or Dept Head
       roleLabel: '分管委领导',
@@ -90,6 +143,22 @@ const state = reactive({
       summary: '主任选择：路径B（推荐名单排序）。'
     },
     {
+      id: 7.1,
+      title: '主任确认',
+      role: 'director',
+      roleLabel: '主任',
+      status: 'pending',
+      summary: '等待主任确认。'
+    },
+    {
+      id: 7.7,
+      title: '主任确认',
+      role: 'director',
+      roleLabel: '主任',
+      status: 'pending',
+      summary: '待主任确认。'
+    },
+    {
       id: 8,
       title: '主任生成并发送名单', // Was Node 7
       role: 'director',
@@ -97,6 +166,14 @@ const state = reactive({
       status: 'completed',
       date: '2024-02-05 09:30',
       summary: '已生成5人首席推荐名单，已发送当事人。'
+    },
+    {
+      id: 17,
+      title: '主任直接指定',
+      role: 'director',
+      roleLabel: '主任',
+      status: 'pending',
+      summary: '主任直接指定首席人选。'
     },
     {
       id: 9,
@@ -126,6 +203,30 @@ const state = reactive({
       roleLabel: '系统',
       status: 'pending',
       summary: '等待双方提交后自动计算。'
+    },
+    {
+      id: 11.1,
+      title: '首席确认',
+      role: 'director',
+      roleLabel: '主任',
+      status: 'pending',
+      summary: '边裁共同选定首席，待主任确认。'
+    },
+    {
+      id: 11.2,
+      title: '主任确认',
+      role: 'director',
+      roleLabel: '主任',
+      status: 'pending',
+      summary: '待主任确认。'
+    },
+    {
+      id: 11.3,
+      title: '主任最终指定',
+      role: 'director',
+      roleLabel: '主任',
+      status: 'pending',
+      summary: '因排序结果冲突，需主任介入指定。'
     },
     {
       id: 11,

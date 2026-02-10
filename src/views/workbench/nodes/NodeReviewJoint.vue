@@ -2,7 +2,7 @@
   <div class="node-workspace">
     <div class="workspace-header">
       <div class="header-content">
-        <h2 class="gradient-text">分管委领导审核</h2>
+        <h2 class="gradient-text">立案部长审核</h2>
         <div class="header-right">
            <div class="status-badge">
              <div class="pulse-dot"></div>
@@ -14,6 +14,7 @@
 
     <div class="workspace-content">
       <div class="review-layout">
+        <!-- 左侧：拟组庭名单 -->
         <div class="left-panel">
           <div class="panel-header">
             <h3>拟组庭人员名单</h3>
@@ -55,7 +56,7 @@
                     </div>
                   </div>
                   <el-button
-                    v-if="person.type === 'orange'"
+                    v-if="person.type === 'blue'"
                     circle
                     type="primary"
                     size="small"
@@ -68,7 +69,9 @@
           </div>
         </div>
 
+        <!-- 右侧：审核操作 -->
         <div class="right-panel" v-if="false">
+          <!-- 智能检测卡片 -->
           <div class="ai-check-card warning">
             <div class="card-icon">
               <el-icon><WarningFilled /></el-icon>
@@ -82,6 +85,7 @@
             </div>
           </div>
 
+          <!-- 审核表单 -->
           <div class="audit-card glass-card">
             <h3>审核意见</h3>
             <el-input
@@ -106,10 +110,10 @@
       <div class="audit-card glass-card">
         <div class="audit-header">
           <h3>审核意见</h3>
-          <div class="audit-switch">
+          <!-- <div class="audit-switch">
             <span>推荐名单</span>
             <el-switch v-model="includeRecommendation" />
-          </div>
+          </div> -->
         </div>
         <el-input
           v-model="comment"
@@ -186,7 +190,11 @@ const tableData = ref([
   { 
     role: '首席', 
     candidates: [
-      { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+      { name: '郭建国', type: 'green', tags: ['博士', '男', '金融证券'] },
+      // { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' },
+      // { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
+      
+      // { name: '陈雅芳', type: 'green', tags: ['硕士', '女', '公司法'] }  // Party Selected
     ]
   },
   { 
@@ -358,6 +366,7 @@ watch(includeRecommendation, (enabled) => {
   gap: 24px;
 }
 
+/* Left Panel */
 .left-panel {
   background: white;
   border-radius: 20px;
@@ -460,11 +469,6 @@ watch(includeRecommendation, (enabled) => {
   border-color: #e1f3d8;
 }
 
-.person-card.orange {
-  background: linear-gradient(145deg, #fdf6ec 0%, #fff 100%);
-  border-color: #f3d19e;
-}
-
 .person-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(0,0,0,0.05);
@@ -485,7 +489,6 @@ watch(includeRecommendation, (enabled) => {
 
 .person-card.blue .person-avatar { background: linear-gradient(135deg, #409eff, #79bbff); }
 .person-card.green .person-avatar { background: linear-gradient(135deg, #67c23a, #95d475); }
-.person-card.orange .person-avatar { background: linear-gradient(135deg, #e6a23c, #f3d19e); }
 
 .person-info { flex: 1; }
 
@@ -515,6 +518,7 @@ watch(includeRecommendation, (enabled) => {
   flex-shrink: 0;
 }
 
+/* Right Panel */
 .right-panel {
   display: flex;
   flex-direction: column;

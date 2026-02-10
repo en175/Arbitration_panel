@@ -106,10 +106,10 @@
       <div class="audit-card glass-card">
         <div class="audit-header">
           <h3>审核意见</h3>
-          <div class="audit-switch">
+          <!-- <div class="audit-switch">
             <span>推荐名单</span>
             <el-switch v-model="includeRecommendation" />
-          </div>
+          </div> -->
         </div>
         <el-input
           v-model="comment"
@@ -186,7 +186,7 @@ const tableData = ref([
   { 
     role: '首席', 
     candidates: [
-      { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+      { name: '郭建国', type: 'green', tags: ['博士', '男', '金融证券'] }
     ]
   },
   { 
