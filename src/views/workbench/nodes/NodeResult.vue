@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span class="title">系统汇总排序结果</span>
-          <el-tag type="warning" effect="dark">进行中</el-tag>
+          <el-tag type="warning" effect="dark" round>进行中</el-tag>
         </div>
       </template>
 
@@ -48,77 +48,138 @@
       <div v-else class="calculation-box fade-in">
         <el-alert
           title="排序结果计算完成"
-          type="success"
-          description="系统已根据双方提交的排序结果，自动匹配出拟定首席仲裁员。"
+          type="warning"
+          description="系统已根据双方提交的排序结果完成比对，发现首选不一致。"
           show-icon
           :closable="false"
-          class="mb-6"
+          class="mb-6 result-alert"
         />
         
         <div class="preview-result">
           <!-- Applicant Column -->
-          <div class="result-column">
+          <div class="result-column app-column">
+            <div class="column-bg-decor"></div>
             <div class="column-header">
-              <el-tag effect="plain">申请人</el-tag>
+              <div class="role-badge app">申请人</div>
+              <div class="party-full-name">广州市天河区高新科技发展有限公司</div>
               <h4>提交排序</h4>
             </div>
             <div class="sort-list-static">
               <div class="static-item first">
-                <span class="rank">1</span> 李四
+                <div class="rank-num">1</div>
+                <div class="card-full-v3">
+                   <div class="v3-head">
+                     <div class="v3-avatar">陈</div>
+                     <div class="v3-main">
+                       <div class="v3-name">陈雅芳</div>
+                       <div class="v3-tags">
+                        <el-tag size="small" effect="plain">公司法</el-tag>
+                        <el-tag size="small" effect="plain">合同法</el-tag>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="v3-body">
+                     <div class="v3-info">
+                      <span>女</span> | <span>硕士</span>
+                     </div>
+                   </div>
+                </div>
+                <div class="crown-icon"><el-icon><Trophy /></el-icon></div>
               </div>
               <div class="static-item">
-                <span class="rank">2</span> 张三
+                <span class="rank">2</span> 郭建国
               </div>
               <div class="static-item">
-                <span class="rank">3</span> 王五
+                <span class="rank">3</span> 林志远
+              </div>
+              <div class="static-item">
+                <span class="rank">4</span> 梁伟诚
+              </div>
+              <div class="static-item">
+                <span class="rank">5</span> 叶晓琳
               </div>
             </div>
           </div>
 
-          <div class="divider">
-            <el-icon size="24"><Close /></el-icon>
+          <div class="vs-divider">
+            <div class="vs-circle">VS</div>
           </div>
 
           <!-- Respondent Column -->
-          <div class="result-column">
+          <div class="result-column res-column">
+            <div class="column-bg-decor"></div>
             <div class="column-header">
-              <el-tag effect="plain" type="success">被申请人</el-tag>
+              <div class="role-badge res">被申请人</div>
+              <div class="party-full-name">深圳市南山区创新投资合伙企业（有限合伙）</div>
               <h4>提交排序</h4>
             </div>
             <div class="sort-list-static">
               <div class="static-item first">
-                <span class="rank">1</span> 李四
+                <div class="rank-num">1</div>
+                <div class="card-full-v3">
+                   <div class="v3-head">
+                     <div class="v3-avatar">叶</div>
+                     <div class="v3-main">
+                       <div class="v3-name">叶晓琳</div>
+                       <div class="v3-tags">
+                        <el-tag size="small" effect="plain">知识产权</el-tag>
+                        <el-tag size="small" effect="plain">技术合同</el-tag>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="v3-body">
+                     <div class="v3-info">
+                      <span>女</span> | <span>硕士</span>
+                     </div>
+                   </div>
+                </div>
+                <div class="crown-icon"><el-icon><Trophy /></el-icon></div>
               </div>
               <div class="static-item">
-                <span class="rank">2</span> 王五
+                <span class="rank">2</span> 梁伟诚
               </div>
               <div class="static-item">
-                <span class="rank">3</span> 张三
+                <span class="rank">3</span> 林志远
+              </div>
+              <div class="static-item">
+                <span class="rank">4</span> 郭建国
+              </div>
+              <div class="static-item">
+                <span class="rank">5</span> 陈雅芳
               </div>
             </div>
           </div>
 
-          <div class="divider">
-            <el-icon size="24"><Right /></el-icon>
+          <div class="arrow-divider">
+            <el-icon size="32" color="#909399"><Right /></el-icon>
           </div>
 
           <!-- Result Column -->
-          <div class="result-column highlight">
+          <div class="result-column system-column">
+            <div class="column-bg-decor"></div>
             <div class="column-header">
-              <el-tag effect="dark">系统</el-tag>
+              <div class="role-badge system">系统判定</div>
               <h4>匹配结果</h4>
             </div>
-            <div class="match-result-box success">
-              <div class="crown-box">👑</div>
-              <el-avatar :size="64" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
-              <div class="match-name">李四</div>
-              <el-tag type="success" size="small">双方共同首选</el-tag>
+            
+            <!-- Inconsistent State (Demo) -->
+            <div class="match-result-box warning">
+              <div class="warning-circle">
+                <el-icon :size="40"><WarningFilled /></el-icon>
+              </div>
+              <div class="match-name">排序不一致</div>
+              <div class="conflict-detail">
+                <div class="conflict-item">申：陈雅芳 (1)</div>
+                <div class="conflict-item">被：叶晓琳 (1)</div>
+              </div>
+              <p class="match-desc">双方首选未达成一致，且未在规定期限内达成补充协议。<br>需报请主任进行最终指定。</p>
+              <div class="action-box">
+                <el-button type="primary" size="large" class="director-btn white-text-btn" @click="handleConflict">
+                  报请主任指定 <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+                </el-button>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="action-footer">
-           <el-button type="primary" size="large" @click="goNext">进入下一环节：主任确认</el-button>
         </div>
       </div>
     </el-card>
@@ -127,8 +188,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Close, Right, Loading, Cpu, List, Histogram, Checked } from '@element-plus/icons-vue'
+import { Close, Right, Loading, Cpu, List, Histogram, Checked, WarningFilled, Trophy, ArrowRight } from '@element-plus/icons-vue'
 import { useArbitration } from '../composables/useArbitration'
+import { ElMessage } from 'element-plus'
 
 defineProps(['nodeData'])
 const { setActiveNode } = useArbitration()
@@ -149,94 +211,99 @@ onMounted(() => {
   }, 50)
 })
 
-const goNext = () => {
-  setActiveNode(10)
+const handleConflict = () => {
+  ElMessage.success('已生成报告，即将进入主任指定环节')
+  setTimeout(() => {
+    setActiveNode(11) // Go to Director Designate Node
+  }, 1000)
 }
 </script>
 
 <style scoped>
 .node-content {
-  padding: 24px;
+  padding: 0 24px 40px;
   max-width: 1200px;
   margin: 0 auto;
 }
+
+.node-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .title {
   font-size: 18px;
-  font-weight: 600;
-  color: var(--arb-text-primary);
-}
-.calculation-box {
-  padding: 12px 0;
-}
-.mb-6 {
-  margin-bottom: 24px;
+  font-weight: 700;
+  color: #1e293b;
 }
 
-/* Algorithm Animation Styles */
+/* Algorithm Loading Styles */
 .algo-loading-container {
+  padding: 60px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-  min-height: 400px;
+  background: #f8fafc;
 }
 
 .radar-scan {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
   position: relative;
-  width: 200px;
-  height: 200px;
-  margin-bottom: 40px;
-}
-
-.central-chip {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  background: var(--arb-primary);
-  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  z-index: 10;
-  box-shadow: 0 0 20px var(--arb-primary-light);
-  animation: pulse-chip 2s infinite;
+  background: white;
+  margin-bottom: 40px;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.1);
 }
 
-.radar-circle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 1px solid var(--arb-primary);
-  border-radius: 50%;
-  opacity: 0;
+.central-chip {
+  color: var(--arb-primary);
+  z-index: 2;
 }
-
-.c1 { width: 100px; height: 100px; animation: ripple 3s infinite; animation-delay: 0s; }
-.c2 { width: 140px; height: 140px; animation: ripple 3s infinite; animation-delay: 1s; }
-.c3 { width: 180px; height: 180px; animation: ripple 3s infinite; animation-delay: 2s; }
 
 .radar-beam {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100px;
-  height: 100px;
-  background: conic-gradient(from 0deg, transparent 0deg, var(--arb-primary-light) 60deg, transparent 60deg);
-  transform-origin: top left;
-  animation: scan 4s linear infinite;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.5), transparent);
+  transform-origin: 0 0;
+  animation: radar-spin 2s linear infinite;
+  z-index: 1;
+}
+
+.radar-circle {
+  position: absolute;
+  border: 1px solid #e2e8f0;
   border-radius: 50%;
-  opacity: 0.3;
+}
+
+.c1 { width: 100%; height: 100%; animation: pulse 2s infinite; }
+.c2 { width: 70%; height: 70%; animation: pulse 2s infinite 0.5s; }
+.c3 { width: 40%; height: 40%; animation: pulse 2s infinite 1s; }
+
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.2; }
+  100% { transform: scale(0.9); opacity: 0.5; }
 }
 
 .loading-status {
@@ -247,71 +314,100 @@ const goNext = () => {
 
 .loading-title {
   font-size: 20px;
-  color: var(--arb-primary);
+  color: #1e293b;
   margin-bottom: 24px;
-  font-family: var(--arb-font-mono);
 }
 
 .loading-steps {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 24px;
-  font-size: 13px;
-  color: var(--arb-text-secondary);
+  margin-bottom: 32px;
+  position: relative;
 }
 
 .step-item {
+  font-size: 14px;
+  color: #94a3b8;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  opacity: 0.5;
+  gap: 8px;
   transition: all 0.3s;
 }
 
-.step-item.active {
-  opacity: 1;
-  color: var(--arb-primary);
-  font-weight: 600;
+.step-item.active { color: var(--arb-primary); font-weight: 600; }
+.step-item.done { color: #10b981; }
+
+.algo-progress {
+  margin-top: 20px;
 }
 
-.step-item.done {
-  color: var(--arb-success);
-}
-
-/* Result Styles */
-.fade-in {
-  animation: fadeIn 0.8s ease-out;
+/* Result Box */
+.calculation-box {
+  padding: 24px;
 }
 
 .preview-result {
   display: flex;
+  gap: 24px;
   align-items: stretch;
-  justify-content: space-between;
-  gap: 16px;
-  background: var(--arb-surface-dim);
-  padding: 32px;
-  border-radius: 12px;
-  border: 1px solid var(--arb-border-color);
 }
+
 .result-column {
   flex: 1;
-  background: white;
+  background: #f8fafc;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: var(--arb-shadow-sm);
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
 }
+
+.column-bg-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
+}
+
 .column-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
 }
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.role-badge.app { background: #eff6ff; color: #3b82f6; }
+.role-badge.res { background: #f0fdf4; color: #22c55e; }
+.role-badge.system { background: #fdf4ff; color: #d946ef; }
+
+.party-full-name {
+  font-size: 13px;
+  color: #475569;
+  margin-bottom: 8px;
+  font-weight: 500;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.3;
+}
+
 .column-header h4 {
   margin: 0;
-  font-size: 14px;
-  color: var(--arb-text-secondary);
+  font-size: 16px;
+  color: #1e293b;
 }
 
 .sort-list-static {
@@ -321,97 +417,203 @@ const goNext = () => {
 }
 
 .static-item {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  font-size: 14px;
 }
 
 .static-item.first {
-  background: #eff6ff;
-  color: var(--arb-primary);
-  border: 1px solid var(--arb-primary-light);
+  background: linear-gradient(135deg, #fff 0%, #fefce8 100%);
+  border: 1px solid #fef08a;
+  padding: 16px;
 }
 
-.rank {
+.rank-num {
+  width: 24px;
+  height: 24px;
+  background: #f1f5f9;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: white;
-  border-radius: 50%;
   font-size: 12px;
-  color: #64748b;
   font-weight: 700;
+  color: #64748b;
 }
 
-.static-item.first .rank {
-  background: var(--arb-primary);
+.static-item.first .rank-num {
+  background: #facc15;
   color: white;
+  box-shadow: 0 2px 4px rgba(250, 204, 21, 0.4);
 }
 
-.highlight {
-  border: 1px solid var(--arb-primary-light);
-  background: linear-gradient(180deg, #fff 0%, var(--arb-primary-weak) 100%);
-}
-.match-result-box {
+/* Card Full V3 (Rank 1) */
+.card-full-v3 {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 8px;
+}
+
+.v3-head {
+  display: flex;
   gap: 12px;
-  color: var(--arb-primary);
-  font-weight: 600;
+  align-items: center;
 }
-.match-result-box.success .match-name {
-  font-size: 24px;
-  font-family: var(--arb-font-serif);
-}
-.crown-box {
-  font-size: 32px;
-  margin-bottom: -10px;
-  z-index: 1;
-  animation: bounce 2s infinite;
-}
-.divider {
+
+.v3-avatar {
+  width: 40px;
+  height: 40px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  color: var(--arb-text-secondary);
-  opacity: 0.5;
-}
-.action-footer {
-  display: flex;
   justify-content: center;
-  margin-top: 32px;
+  font-weight: 700;
+  font-size: 18px;
 }
 
-@keyframes pulse-chip {
-  0% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.05); }
-  100% { transform: translate(-50%, -50%) scale(1); }
+.v3-main {
+  flex: 1;
 }
 
-@keyframes ripple {
-  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; border-width: 4px; }
-  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; border-width: 0px; }
+.v3-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
 }
 
-@keyframes scan {
-  0% { transform: translate(-100%, -100%) rotate(0deg); }
-  100% { transform: translate(-100%, -100%) rotate(360deg); }
+.v3-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+.v3-body {
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 8px;
 }
 
-@keyframes fadeIn {
+.v3-info {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.crown-icon {
+  color: #facc15;
+  font-size: 24px;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+}
+
+.vs-divider {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.vs-circle {
+  width: 40px;
+  height: 40px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.arrow-divider {
+  display: flex;
+  align-items: center;
+  color: #cbd5e1;
+  padding: 0 12px;
+}
+
+.match-result-box {
+  background: white;
+  border-radius: 12px;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+}
+
+.match-result-box.warning {
+  background: linear-gradient(180deg, #fff 0%, #fff7ed 100%);
+  border: 1px solid #fed7aa;
+}
+
+.warning-circle {
+  width: 64px;
+  height: 64px;
+  background: #ffedd5;
+  color: #f97316;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.match-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #9a3412;
+  margin-bottom: 16px;
+}
+
+.conflict-detail {
+  background: rgba(255, 255, 255, 0.6);
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #c2410c;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.match-desc {
+  font-size: 14px;
+  color: #9a3412;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.action-box {
+  margin-top: auto;
+  width: 100%;
+}
+
+.director-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border: none;
+}
+
+.director-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+.fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+@keyframes fade-in {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }

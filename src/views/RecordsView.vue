@@ -101,7 +101,7 @@
           <el-input v-model="form.model.title" placeholder="请输入标题" maxlength="50" show-word-limit />
         </el-form-item>
         <el-form-item label="负责人" prop="owner">
-          <el-input v-model="form.model.owner" placeholder="如：张三" maxlength="20" />
+          <el-input v-model="form.model.owner" placeholder="如：郭建国" maxlength="20" />
         </el-form-item>
         <el-form-item label="金额" prop="amount">
           <el-input-number v-model="form.model.amount" :min="0" :precision="2" :step="100" style="width: 220px" />

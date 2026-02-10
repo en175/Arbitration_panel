@@ -79,3 +79,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* White Text Button Helper */
+.white-text-btn {
+  color: #fff !important;
+}
+.white-text-btn span {
+  color: #fff !important;
+}
+.white-text-btn .el-icon {
+  color: #fff !important;
+}

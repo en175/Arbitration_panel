@@ -12,7 +12,7 @@
           </div>
 
         <!-- Hero Card Area -->
-        <div class="hero-card">
+        <div class="hero-card animate-fade-in-up">
           <div class="case-info-main">
             <h1 class="case-no">{{ state.caseInfo.caseNo }}</h1>
             <div class="case-meta">
@@ -24,7 +24,6 @@
             </div>
             <div class="case-tags">
               <el-tag effect="plain" class="glass-tag">三人仲裁庭</el-tag>
-              <el-tag effect="plain" class="glass-tag">独任仲裁庭</el-tag>
             </div>
           </div>
           
@@ -41,11 +40,12 @@
       <div class="header-bg-decor">
         <div class="decor-circle circle-1"></div>
         <div class="decor-circle circle-2"></div>
+        <div class="decor-shape shape-1"></div>
       </div>
     </header>
 
     <!-- 2. Timeline Stepper (Horizontal Scroll) -->
-    <div class="timeline-area">
+    <div class="timeline-area glass-card animate-fade-in-up" style="animation-delay: 0.1s">
       <HorizontalTimeline 
         :nodes="state.timelineNodes" 
         :active-node-id="state.activeNodeId"
@@ -55,12 +55,12 @@
 
     <!-- 3. Dynamic Workspace Content -->
     <main class="wb-main">
-      <div class="main-container">
+      <div class="main-container animate-fade-in-up" style="animation-delay: 0.2s">
         <!-- Dynamic Component Loading -->
         <component :is="currentNodeComponent" :node-data="viewingNode" />
         
         <!-- Default Empty State for un-implemented nodes -->
-        <div v-if="!currentNodeComponent" class="empty-workspace">
+        <div v-if="!currentNodeComponent" class="empty-workspace glass-card">
           <el-empty description="该节点功能暂未在演示版中开放" />
         </div>
       </div>
@@ -84,8 +84,8 @@ import NodeDirector from './nodes/NodeDirector.vue'   // Node 6
 import NodeDistribute from './nodes/NodeDistribute.vue' // Node 7
 import NodeRanking from './nodes/NodeRanking.vue'     // Node 8
 import NodeResult from './nodes/NodeResult.vue'       // Node 9
-import NodeConfirm from './nodes/NodeConfirm.vue'     // Node 10
-import NodeReview from './nodes/NodeReview.vue'       // Node 11
+import NodeReview from './nodes/NodeReview.vue'
+import NodeDirectorDesignate from './nodes/NodeDirectorDesignate.vue' // Node 11
 import NodeFinish from './nodes/NodeFinish.vue'       // Node 12
 
 const { state, viewingNode, setActiveNode } = useArbitration()
@@ -100,15 +100,15 @@ const currentNodeComponent = computed(() => {
     case 1: return NodeStart
     case 2: return NodeSelection
     case 3: return NodeNominate
-    case 4: return NodeCheck
-    case 5: return NodeDisclosure
-    case 6: return NodeDirector
-    case 7: return NodeDistribute
-    case 8: return NodeRanking
-    case 9: return NodeResult
-    case 10: return NodeConfirm
-    case 11: return NodeReview
-    case 12: return NodeFinish
+    case 4: return NodeDisclosure // Swapped (was 5)
+    case 5: return NodeCheck      // Swapped (was 4)
+    case 6: return NodeReview     // Moved (was 11)
+    case 7: return NodeDirector   // Was 6
+    case 8: return NodeDistribute // Was 7
+    case 9: return NodeRanking    // Was 8
+    case 10: return NodeResult    // Was 9
+    case 11: return NodeDirectorDesignate // New Node
+    case 12: return NodeFinish    // Was 11
     default: return null
   }
 })
@@ -118,22 +118,27 @@ const currentNodeComponent = computed(() => {
 .workbench-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh; /* Changed from height: 100vh to min-height */
   background: var(--arb-bg);
+  /* Added nice background gradient mesh */
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%), 
+    radial-gradient(circle at 85% 30%, rgba(180, 83, 9, 0.05), transparent 25%);
+  padding-bottom: 40px; /* Add some bottom padding for scrolling */
 }
 
 .wb-header {
   position: relative;
-  background: linear-gradient(180deg, #124494 0%, #0E3E8A 100%); /* Solid Authority Blue */
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1E40AF 100%);
   color: white;
   padding: 0 24px 32px;
-  overflow: hidden;
+  /* overflow: hidden; Removed to prevent clipping of shadows/glows */
   height: auto;
   min-height: 280px;
   display: flex;
   flex-direction: column;
   border-bottom: none;
-  box-shadow: 0 4px 20px rgba(18, 68, 148, 0.15);
+  box-shadow: 0 10px 40px -10px rgba(30, 58, 138, 0.5);
 }
 
 .header-content {
@@ -161,23 +166,18 @@ const currentNodeComponent = computed(() => {
   gap: 12px;
   font-weight: 700;
   color: white;
-  font-size: 18px;
+  font-size: 20px;
   font-family: var(--arb-font-serif);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .app-logo {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: white;
-  padding: 2px;
-}
-
-.role-tag {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-weight: 500;
+  padding: 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 /* Hero Card Styling */
@@ -186,11 +186,19 @@ const currentNodeComponent = computed(() => {
   justify-content: space-between;
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 32px 48px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.hero-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
 
 .case-info-main {
@@ -201,19 +209,23 @@ const currentNodeComponent = computed(() => {
 
 .case-no {
   font-family: var(--arb-font-mono);
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: linear-gradient(to right, #fff, #bfdbfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .case-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 14px;
-  opacity: 0.9;
+  font-size: 15px;
+  opacity: 0.95;
+  color: #E2E8F0;
 }
 
 .meta-item {
@@ -229,7 +241,7 @@ const currentNodeComponent = computed(() => {
 }
 
 .case-tags {
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   gap: 8px;
 }
@@ -238,6 +250,8 @@ const currentNodeComponent = computed(() => {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
 }
 
 /* Days Remaining Card */
@@ -246,29 +260,35 @@ const currentNodeComponent = computed(() => {
 }
 
 .days-card {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  width: 100px;
-  height: 100px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  width: 110px;
+  height: 110px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  backdrop-filter: blur(10px);
 }
 
 .days-num {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 800;
   line-height: 1;
   font-family: var(--arb-font-mono);
+  background: linear-gradient(to bottom, #fff, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
 }
 
 .days-label {
   font-size: 12px;
-  margin-top: 4px;
-  opacity: 0.9;
+  margin-top: 6px;
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
 }
 
 /* Background Decoration */
@@ -286,37 +306,58 @@ const currentNodeComponent = computed(() => {
 .decor-circle {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  filter: blur(60px);
 }
 
 .circle-1 {
   width: 600px;
   height: 600px;
-  top: -200px;
-  right: -100px;
-  opacity: 0.6;
+  top: -250px;
+  right: -150px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(30, 58, 138, 0) 70%);
+  opacity: 0.8;
+  animation: float 10s ease-in-out infinite;
 }
 
 .circle-2 {
-  width: 400px;
-  height: 400px;
-  bottom: -100px;
-  left: -50px;
-  opacity: 0.4;
+  width: 500px;
+  height: 500px;
+  bottom: -200px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(180, 83, 9, 0.2) 0%, rgba(180, 83, 9, 0) 70%);
+  opacity: 0.6;
+  animation: float 12s ease-in-out infinite reverse;
+}
+
+.decor-shape {
+  position: absolute;
+  background: linear-gradient(45deg, rgba(255,255,255,0.03), transparent);
+  transform: rotate(45deg);
+}
+
+.shape-1 {
+  width: 1000px;
+  height: 200px;
+  top: 50px;
+  left: -200px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
 
 .timeline-area {
-  margin-top: -32px; /* Pull up to overlap */
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-top: -40px; /* Pull up to overlap */
   z-index: 10;
   max-width: 1200px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
   position: relative;
-  padding: 8px 0;
+  /* Glassmorphism applied via glass-card class in template, override specific padding/radius here */
+  border-radius: 16px;
+  padding: 4px 0;
 }
 
 .wb-main {
@@ -331,11 +372,8 @@ const currentNodeComponent = computed(() => {
 }
 
 .empty-workspace {
-  background: white;
-  border-radius: 12px;
   padding: 64px;
   border: 1px dashed var(--arb-border);
-  box-shadow: var(--arb-shadow);
 }
 </style>
 

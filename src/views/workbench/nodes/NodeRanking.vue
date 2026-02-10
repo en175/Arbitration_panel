@@ -1,17 +1,17 @@
 <template>
   <div class="node-workspace">
     <div class="workspace-header">
-      <h2>推荐名单排序</h2>
-      <div class="deadline-alert">
+      <h2 class="gradient-text">推荐名单排序</h2>
+      <div class="deadline-alert glass-alert">
         <el-icon><Timer /></el-icon>
-        截止时间：2024-02-15 23:59 (剩余 5 天)
+        <span>截止时间：2024-02-15 23:59 (剩余 5 天)</span>
       </div>
     </div>
 
     <div class="workspace-content">
       <div class="left-panel">
-        <div class="instruction-card">
-          <h3>操作指引</h3>
+        <div class="instruction-card glass-card">
+          <h3 class="section-title">操作指引</h3>
           <p>请对下方推荐的仲裁员进行排序。您的排序将与对方当事人的排序进行比对，以确定最终人选。</p>
           <ul class="rule-list">
             <li>支持拖拽调整顺序。</li>
@@ -22,10 +22,10 @@
       </div>
 
       <div class="right-panel">
-        <div class="sort-container">
+        <div class="sort-container glass-card">
           <div class="list-header">
             <span>推荐名单 (5人)</span>
-            <el-tag type="warning" effect="dark" size="small">待提交</el-tag>
+            <el-tag type="warning" effect="dark" size="small" round>待提交</el-tag>
           </div>
           
           <div class="sort-list">
@@ -41,12 +41,12 @@
             >
               <div class="rank-badge">{{ index + 1 }}</div>
               <div class="arb-avatar">
-                <el-avatar :size="40" style="background: var(--arb-primary-light)">{{ arb.name[0] }}</el-avatar>
+                <el-avatar :size="48" class="gradient-avatar">{{ arb.name[0] }}</el-avatar>
               </div>
               <div class="arb-details">
                 <div class="name-row">
                   <span class="name">{{ arb.name }}</span>
-                  <el-tag size="small" effect="plain" v-for="tag in arb.tags" :key="tag">{{ tag }}</el-tag>
+                  <el-tag size="small" effect="plain" v-for="tag in arb.tags" :key="tag" class="tag-glass">{{ tag }}</el-tag>
                 </div>
                 <div class="desc">资深法律专家，执业年限 15年+</div>
               </div>
@@ -57,7 +57,7 @@
           </div>
 
           <div class="actions">
-            <el-button type="primary" size="large" class="submit-btn" @click="submit">
+            <el-button class="arb-btn-primary" size="large" @click="submit">
               确认并提交排序结果
             </el-button>
           </div>
@@ -80,11 +80,11 @@ const props = defineProps({
 const { completeSortNode } = useArbitration()
 
 const localList = ref([
-  { id: 'A001', name: '张三', tags: ['金融', '股权'] },
-  { id: 'A002', name: '李四', tags: ['公司法', '合同'] },
-  { id: 'A003', name: '王五', tags: ['民商事', '建设工程'] },
-  { id: 'A004', name: '赵六', tags: ['国际贸易', '投资'] },
-  { id: 'A005', name: '孙七', tags: ['知识产权', '技术'] }
+  { id: 'A001', name: '郭建国', tags: ['金融', '股权'] },
+  { id: 'A002', name: '陈雅芳', tags: ['公司法', '合同'] },
+  { id: 'A003', name: '林志远', tags: ['民商事', '建设工程'] },
+  { id: 'A004', name: '梁伟诚', tags: ['国际贸易', '投资'] },
+  { id: 'A005', name: '叶晓琳', tags: ['知识产权', '技术'] }
 ])
 
 const draggedIndex = ref(null)
@@ -121,13 +121,17 @@ const submit = () => {
 
 .workspace-header h2 {
   font-family: var(--arb-font-serif);
-  color: var(--arb-primary);
   margin: 0;
+  font-size: 24px;
+}
+
+.gradient-text {
+  background: var(--arb-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .deadline-alert {
-  background: #FEF2F2;
-  color: #DC2626;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 13px;
@@ -137,6 +141,13 @@ const submit = () => {
   gap: 6px;
 }
 
+.glass-alert {
+  background: rgba(254, 242, 242, 0.7);
+  backdrop-filter: blur(4px);
+  color: #DC2626;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
 .workspace-content {
   display: grid;
   grid-template-columns: 300px 1fr;
@@ -144,16 +155,14 @@ const submit = () => {
 }
 
 .instruction-card {
-  background: var(--arb-surface);
   padding: 24px;
-  border-radius: var(--arb-radius);
-  border: 1px solid var(--arb-border);
 }
 
-.instruction-card h3 {
+.section-title {
   margin-top: 0;
   color: var(--arb-text-main);
   font-size: 16px;
+  font-weight: 600;
 }
 
 .instruction-card p {
@@ -170,71 +179,84 @@ const submit = () => {
 }
 
 .sort-container {
-  background: var(--arb-surface);
-  border-radius: var(--arb-radius-lg);
-  box-shadow: var(--arb-shadow);
   overflow: hidden;
-  border: 1px solid var(--arb-border-light);
+  padding: 0;
 }
 
 .list-header {
-  background: var(--arb-bg);
   padding: 16px 24px;
-  border-bottom: 1px solid var(--arb-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
   color: var(--arb-text-main);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .sort-list {
-  padding: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .sort-item {
   display: flex;
   align-items: center;
   padding: 16px;
-  border: 1px solid var(--arb-border);
-  border-radius: 8px;
-  margin-bottom: 12px;
-  background: white;
-  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.4);
   cursor: grab;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .sort-item:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border-color: var(--arb-primary-light);
-  box-shadow: var(--arb-shadow);
 }
 
 .sort-item.is-first {
-  border-color: var(--arb-gold);
-  background: var(--arb-gold-bg);
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(240, 249, 255, 0.6));
+  border-color: var(--arb-primary-light);
 }
 
 .rank-badge {
   width: 28px;
   height: 28px;
-  background: var(--arb-border);
+  background: var(--arb-bg);
   color: var(--arb-text-secondary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  font-size: 14px;
   margin-right: 16px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.sort-item.is-first .rank-badge {
-  background: var(--arb-gold);
+.is-first .rank-badge {
+  background: var(--arb-gradient-gold);
   color: white;
+  box-shadow: 0 2px 4px rgba(180, 83, 9, 0.3);
+}
+
+.gradient-avatar {
+  background: var(--arb-gradient-primary);
+  font-weight: 600;
+}
+
+.arb-avatar {
+  margin-right: 16px;
 }
 
 .arb-details {
   flex: 1;
-  margin-left: 16px;
 }
 
 .name-row {
@@ -246,31 +268,35 @@ const submit = () => {
 
 .name {
   font-weight: 600;
+  color: var(--arb-text-main);
   font-size: 16px;
 }
 
+.tag-glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 .desc {
-  font-size: 12px;
-  color: var(--arb-text-muted);
+  font-size: 13px;
+  color: var(--arb-text-secondary);
 }
 
 .drag-handle {
-  color: var(--arb-border);
+  color: var(--arb-text-muted);
   cursor: grab;
+  padding: 8px;
+}
+
+.drag-handle:hover {
+  color: var(--arb-primary);
 }
 
 .actions {
   padding: 24px;
-  border-top: 1px solid var(--arb-border-light);
   text-align: right;
-  background: var(--arb-bg);
-}
-
-.submit-btn {
-  width: 200px;
-  --el-button-bg-color: var(--arb-gold);
-  --el-button-border-color: var(--arb-gold);
-  --el-button-hover-bg-color: var(--arb-gold-light);
-  --el-button-hover-border-color: var(--arb-gold-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.2);
 }
 </style>

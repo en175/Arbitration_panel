@@ -20,7 +20,7 @@ export function createMockRecords() {
     return {
       id,
       title: `示例记录 ${id}`,
-      owner: idx % 2 === 0 ? '张三' : '李四',
+      owner: idx % 2 === 0 ? '郭建国' : '陈雅芳',
       amount: Math.round((Math.random() * 9000 + 1000) * 100) / 100,
       status,
       updatedAt: new Date(now - idx * 86400000).toISOString()
