@@ -58,8 +58,8 @@
                 <span>{{ candidate.gender || '男' }}</span> | <span>{{ candidate.education || '博士' }}</span> | <span>办案 {{ candidate.cases }}件</span>
               </div>
               <div class="v3-rate">
-                 <span class="rate-label">结案率</span>
-                 <span class="rate-val">{{ candidate.rate }}%</span>
+                 <span class="rate-label">在手案件量</span>
+                 <span class="rate-val">{{ (candidate.rate / 5).toFixed(0) }}件</span>
               </div>
             </div>
           </div>

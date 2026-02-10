@@ -85,6 +85,7 @@ import NodeDistribute from './nodes/NodeDistribute.vue' // Node 7
 import NodeRanking from './nodes/NodeRanking.vue'     // Node 8
 import NodeResult from './nodes/NodeResult.vue'       // Node 9
 import NodeReview from './nodes/NodeReview.vue'
+import NodeReviewLeadership from './nodes/NodeReviewLeadership.vue'
 import NodeDirectorDesignate from './nodes/NodeDirectorDesignate.vue' // Node 11
 import NodeFinish from './nodes/NodeFinish.vue'       // Node 12
 
@@ -98,11 +99,12 @@ const currentNodeComponent = computed(() => {
   const id = viewingNode.value?.id
   switch (id) {
     case 1: return NodeStart
-    case 2: return NodeSelection
-    case 3: return NodeNominate
+    case 2: return NodeNominate
+    case 3: return NodeSelection
     case 4: return NodeDisclosure // Swapped (was 5)
     case 5: return NodeCheck      // Swapped (was 4)
     case 6: return NodeReview     // Moved (was 11)
+    case 6.5: return NodeReviewLeadership
     case 7: return NodeDirector   // Was 6
     case 8: return NodeDistribute // Was 7
     case 9: return NodeRanking    // Was 8
@@ -376,4 +378,3 @@ const currentNodeComponent = computed(() => {
   border: 1px dashed var(--arb-border);
 }
 </style>
-

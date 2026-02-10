@@ -3,7 +3,7 @@
     <div class="node-card glass-card">
       <div class="card-header-wrapper">
         <div class="card-header">
-          <span class="title">当事人提交选定/提名</span>
+          <span class="title">当事人提交选定</span>
           <el-tag type="warning" effect="dark" round>进行中</el-tag>
         </div>
         <div class="header-divider"></div>

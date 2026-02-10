@@ -102,7 +102,7 @@
           </div>
 
           <div class="vs-divider">
-            <div class="vs-circle">VS</div>
+            <!-- <div class="vs-circle">VS</div> -->
           </div>
 
           <!-- Respondent Column -->
@@ -139,10 +139,10 @@
                 <span class="rank">2</span> 梁伟诚
               </div>
               <div class="static-item">
-                <span class="rank">3</span> 林志远
+                <span class="rank">3</span> 郭建国
               </div>
               <div class="static-item">
-                <span class="rank">4</span> 郭建国
+                <span class="rank">4</span> 林志远
               </div>
               <div class="static-item">
                 <span class="rank">5</span> 陈雅芳
@@ -172,12 +172,12 @@
                 <div class="conflict-item">申：陈雅芳 (1)</div>
                 <div class="conflict-item">被：叶晓琳 (1)</div>
               </div>
-              <p class="match-desc">双方首选未达成一致，且未在规定期限内达成补充协议。<br>需报请主任进行最终指定。</p>
-              <div class="action-box">
+              <p class="match-desc">双方首选未达成一致，且未在规定期限内达成补充协议。<br>需由主任进行最终指定。</p>
+              <!-- <div class="action-box">
                 <el-button type="primary" size="large" class="director-btn white-text-btn" @click="handleConflict">
                   报请主任指定 <el-icon class="el-icon--right"><ArrowRight /></el-icon>
                 </el-button>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>

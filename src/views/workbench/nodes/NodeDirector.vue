@@ -3,10 +3,66 @@
     <div class="workspace-header">
       <div class="header-content">
         <div class="title-group">
-          <h2 class="main-title">主任路径决策</h2>
+          <h2 class="main-title">主任决策</h2>
         </div>
         <div class="header-actions">
           <el-tag effect="dark" type="warning" class="status-badge">待决策</el-tag>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-layout">
+      <div class="left-panel">
+        <div class="panel-header">
+          <h3>拟组庭人员名单</h3>
+          <div class="legend-group">
+            <div class="legend-item blue"><span class="dot"></span>系统推荐</div>
+            <div class="legend-item green"><span class="dot"></span>当事人选定</div>
+            <div class="legend-item orange"><span class="dot"></span>上一级审批人推荐</div>
+            <div class="legend-item red"><span class="dot"></span>变更前组庭仲裁员</div>
+          </div>
+        </div>
+
+        <div class="candidate-list">
+          <div 
+            v-for="(roleGroup, roleIndex) in tableData" 
+            :key="roleIndex"
+            class="role-group-card"
+          >
+            <div class="role-badge">{{ roleGroup.role }}</div>
+            
+            <div class="candidates-grid">
+              <div 
+                v-for="(person, personIndex) in roleGroup.candidates" 
+                :key="person.name"
+                class="person-card"
+                :class="person.type"
+              >
+                <div v-if="person.selectedBy" class="person-selection-tag">
+                  {{ person.selectedBy === 'applicant' ? '申请人选定' : '被申请人选定' }}
+                </div>
+                <div class="person-avatar">
+                  {{ person.name.charAt(0) }}
+                </div>
+                <div class="person-info">
+                  <div class="person-name">
+                    {{ person.name }}
+                  </div>
+                  <div class="person-tags">
+                    <span v-for="tag in person.tags" :key="tag" class="tag">{{ tag }}</span>
+                  </div>
+                </div>
+                <el-button
+                  v-if="person.type === 'orange'"
+                  circle
+                  type="primary"
+                  size="small"
+                  class="person-switch-btn"
+                  @click="openSwitchDialog(roleIndex, personIndex)"
+                ><el-icon><RefreshLeft /></el-icon></el-button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -20,8 +76,11 @@
             @click="pathType = 'A'"
           >
             <div class="card-glow"></div>
-            <div class="card-icon">
-              <el-icon><List /></el-icon>
+            <div class="card-icon-row">
+              <div class="card-icon">
+                <el-icon><List /></el-icon>
+              </div>
+              <span class="card-badge">立案部长建议流程</span>
             </div>
             <div class="card-content">
               <div class="card-title">路径 A · 推荐名单</div>
@@ -112,15 +171,39 @@
         <transition name="el-zoom-in-top">
           <div v-if="pathType === 'B'" class="path-content-wrapper">
             <div class="direct-appoint-panel glass-panel">
-              <div class="empty-state-large">
-                <div class="icon-bg">
-                  <el-icon><UserFilled /></el-icon>
+              <div class="dialog-search-header">
+                <el-input v-model="searchQuery" placeholder="输入姓名搜索..." prefix-icon="Search" class="search-input" />
+                <div class="filters">
+                  <el-select v-model="filterDomain" placeholder="领域" clearable><el-option label="金融" value="finance" /></el-select>
+                  <el-select v-model="filterEducation" placeholder="学历" clearable><el-option label="博士" value="phd" /></el-select>
                 </div>
-                <h3>直接指定模式</h3>
-                <p>您已选择由主任直接指定首席仲裁员。请点击下方按钮进入人员指定流程。</p>
-                <el-button type="primary" size="large" class="action-btn" @click="submit">
-                  开始指定流程
-                </el-button>
+                <el-button type="primary" @click="handleSearch">查询</el-button>
+              </div>
+
+              <div class="dialog-grid">
+                <div 
+                  v-for="arb in arbitratorList" 
+                  :key="arb.name" 
+                  class="dialog-card"
+                  :class="{ selected: candidates.some(c => c.name === arb.name) }"
+                >
+                  <div class="d-header">
+                    <div class="d-avatar">{{ arb.name.charAt(0) }}</div>
+                    <div class="d-info">
+                      <div class="d-name">{{ arb.name }}</div>
+                      <div class="d-meta">{{ arb.education }} · {{ arb.gender }}</div>
+                    </div>
+                    <el-button 
+                      v-if="!candidates.some(c => c.name === arb.name)"
+                      circle type="primary" size="small" 
+                      @click="addFromDialog(arb)"
+                    ><el-icon><Plus /></el-icon></el-button>
+                    <el-button v-else circle type="success" size="small" disabled><el-icon><Check /></el-icon></el-button>
+                  </div>
+                  <div class="d-tags">
+                    <span v-for="tag in arb.domains" :key="tag">{{ tag }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -128,7 +211,26 @@
       </div>
 
       <div class="side-column">
-        <div class="info-card-modern">
+        <div class="info-card-modern oa-timeline-card">
+          <div class="card-header">
+            <span class="icon-wrapper"><el-icon><Operation /></el-icon></span>
+            <span class="title">OA审批流</span>
+          </div>
+          <div class="oa-timeline">
+            <div v-for="(item, index) in oaTimeline" :key="index" class="oa-item">
+              <div class="oa-marker"></div>
+              <div class="oa-content">
+                <div class="oa-title">
+                  <span class="oa-role">{{ item.role }}</span>
+                  <span class="oa-time">{{ item.time }}</span>
+                </div>
+                <div class="oa-opinion">{{ item.opinion }}</div>
+                <div class="oa-recommend">{{ item.recommendation }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="info-card-modern" v-if="false">
           <div class="card-header">
             <span class="icon-wrapper"><el-icon><Document /></el-icon></span>
             <span class="title">案件概况</span>
@@ -153,7 +255,7 @@
           </div>
         </div>
 
-        <div class="info-card-modern warning">
+        <!-- <div class="info-card-modern warning">
           <div class="card-header">
             <span class="icon-wrapper warning"><el-icon><Warning /></el-icon></span>
             <span class="title">智能风控</span>
@@ -161,7 +263,7 @@
           <div class="warning-content">
             <p>检测到当事人一方为外籍（新加坡），请优先推荐具备<strong>涉外仲裁经验</strong>的仲裁员。</p>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -213,12 +315,32 @@
 <script setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { UserFilled, List, Check, Search, Operation, MagicStick, Trophy, Plus, Close, Document, Warning } from '@element-plus/icons-vue'
+import { UserFilled, List, Check, Search, Operation, MagicStick, Trophy, Plus, Close, Document, Warning, RefreshLeft } from '@element-plus/icons-vue'
 import { useArbitration } from '../composables/useArbitration'
 
 const { setActiveNode } = useArbitration()
 
 const pathType = ref('A')
+const tableData = ref([
+  { 
+    role: '首席(独任)', 
+    candidates: [
+      { name: '郭建国', type: 'orange', tags: ['博士', '男', '金融证券'] }
+    ]
+  },
+  { 
+    role: '仲裁员(边裁)', 
+    candidates: [
+      { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
+    ]
+  },
+  { 
+    role: '仲裁员(边裁)', 
+    candidates: [
+      { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
+    ]
+  }
+])
 const candidates = ref([
   { name: '郭建国', education: '博士', gender: '男', domains: ['金融', '房地产'] },
   { name: '陈雅芳', education: '硕士', gender: '女', domains: ['知识产权'] },
@@ -227,6 +349,26 @@ const candidates = ref([
   { name: '叶晓琳', education: '硕士', gender: '女', domains: ['技术合同'] }
 ])
 const showMoreDialog = ref(false)
+const oaTimeline = [
+  {
+    role: '呈批人 · 秘书',
+    time: '2025-11-27 15:31:07',
+    opinion: '提交',
+    recommendation: '申请人未选定首席仲裁员，选定齐华修（君安世纪（台州））为仲裁员；被申请人未选定首席仲裁员，未选定仲裁员。'
+  },
+  {
+    role: '审批人 · 部门负责人',
+    time: '2025-11-27 16:10:24',
+    opinion: '同意推进',
+    recommendation: '建议主任优先采用推荐名单路径，结合当事人选定结果进行校验。'
+  },
+  {
+    role: '审批人 · 分管委领导',
+    time: '2025-11-27 17:05:12',
+    opinion: '通过',
+    recommendation: '同意，必要时补充涉外经验仲裁员。'
+  }
+]
 
 // Dialog Filters
 const searchQuery = ref('')
@@ -279,6 +421,10 @@ const handleSearch = () => {
   ElMessage.info('查询已更新')
 }
 
+const openSwitchDialog = () => {
+  showMoreDialog.value = true
+}
+
 const submit = () => {
   ElMessage.success('决策已提交，流程流转至：确认推荐名单')
   setTimeout(() => {
@@ -329,6 +475,146 @@ const submit = () => {
   grid-template-columns: 1fr 340px;
   gap: 40px;
   align-items: start;
+}
+.review-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.review-layout .left-panel {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+}
+.review-layout .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.review-layout .panel-header h3 { margin: 0; font-size: 18px; color: var(--arb-text-primary); }
+.review-layout .legend-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.review-layout .legend-item {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--arb-text-secondary);
+}
+.review-layout .legend-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.review-layout .legend-item.blue .dot { background: #409eff; }
+.review-layout .legend-item.green .dot { background: #67c23a; }
+.review-layout .legend-item.orange .dot { background: #e6a23c; }
+.review-layout .legend-item.red .dot { background: #f56c6c; }
+.review-layout .candidate-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+.review-layout .role-group-card {
+  margin-bottom: 24px;
+}
+.review-layout .role-badge {
+  display: inline-block;
+  background: #f8fafc;
+  color: var(--arb-text-secondary);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.review-layout .candidates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.review-layout .person-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.review-layout .person-selection-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--arb-text-secondary);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.review-layout .person-card.blue {
+  background: linear-gradient(145deg, #ecf5ff 0%, #fff 100%);
+  border-color: #d9ecff;
+}
+.review-layout .person-card.green {
+  background: linear-gradient(145deg, #f0f9eb 0%, #fff 100%);
+  border-color: #e1f3d8;
+}
+.review-layout .person-card.orange {
+  background: linear-gradient(145deg, #fdf6ec 0%, #fff 100%);
+  border-color: #f3d19e;
+}
+.review-layout .person-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+}
+.review-layout .person-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.review-layout .person-card.blue .person-avatar { background: linear-gradient(135deg, #409eff, #79bbff); }
+.review-layout .person-card.green .person-avatar { background: linear-gradient(135deg, #67c23a, #95d475); }
+.review-layout .person-card.orange .person-avatar { background: linear-gradient(135deg, #e6a23c, #f3d19e); }
+.review-layout .person-info { flex: 1; }
+.review-layout .person-name {
+  font-weight: 600;
+  color: var(--arb-text-main);
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+.review-layout .person-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.review-layout .person-tags .tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.8);
+  color: var(--arb-text-secondary);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+.review-layout .person-switch-btn {
+  flex-shrink: 0;
 }
 .main-column {
   display: flex;
@@ -389,6 +675,24 @@ const submit = () => {
   color: #64748b;
   margin-bottom: 24px;
   transition: all 0.3s;
+}
+.card-icon-row {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.card-icon-row .card-icon {
+  margin-bottom: 0;
+}
+.card-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  white-space: nowrap;
 }
 .path-card-large.active .card-icon {
   background: var(--arb-primary);
@@ -577,7 +881,7 @@ const submit = () => {
 
 .direct-appoint-panel {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
   min-height: 400px;
 }
@@ -604,6 +908,73 @@ const submit = () => {
   padding: 24px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0,0,0,0.02);
+}
+.oa-timeline-card .card-header {
+  margin-bottom: 16px;
+}
+.oa-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 14px;
+}
+.oa-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: #e2e8f0;
+}
+.oa-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+}
+.oa-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--arb-primary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.oa-content {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.oa-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.oa-role {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--arb-text-primary);
+}
+.oa-time {
+  font-size: 12px;
+  color: var(--arb-text-secondary);
+}
+.oa-opinion {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+.oa-recommend {
+  font-size: 12px;
+  color: var(--arb-text-secondary);
+  line-height: 1.6;
 }
 .info-card-modern.warning {
   background: #fffafa;

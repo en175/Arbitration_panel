@@ -28,7 +28,7 @@ const state = reactive({
     },
     {
       id: 2,
-      title: '当事人选择组庭方式',
+      title: '边裁选择',
       role: 'party',
       roleLabel: '当事人',
       status: 'completed',
@@ -37,36 +37,45 @@ const state = reactive({
     },
     {
       id: 3,
-      title: '当事人提交选定/提名',
+      title: '首席选择',
       role: 'party',
       roleLabel: '当事人',
       status: 'completed',
       date: '2024-02-03 09:15',
       summary: '申请人已提交；被申请人已提交。'
     },
-    {
-      id: 4,
-      title: '边裁披露与接受', // Was Node 5
-      role: 'arbitrator',
-      roleLabel: '仲裁员',
-      status: 'completed',
-      date: '2024-02-03 11:00',
-      summary: '双方选定/提名的边裁已签署接受书与披露声明。'
-    },
-    {
-      id: 5,
-      title: '秘书材料核对', // Was Node 4
-      role: 'secretary',
-      roleLabel: '秘书',
-      status: 'completed',
-      date: '2024-02-04 09:00',
-      summary: '材料齐全，无风险项。'
-    },
+    // {
+    //   id: 4,
+    //   title: '边裁披露与接受', // Was Node 5
+    //   role: 'arbitrator',
+    //   roleLabel: '仲裁员',
+    //   status: 'completed',
+    //   date: '2024-02-03 11:00',
+    //   summary: '双方选定/提名的边裁已签署接受书与披露声明。'
+    // },
+    // {
+    //   id: 5,
+    //   title: '秘书材料核对', // Was Node 4
+    //   role: 'secretary',
+    //   roleLabel: '秘书',
+    //   status: 'completed',
+    //   date: '2024-02-04 09:00',
+    //   summary: '材料齐全，无风险项。'
+    // },
     {
       id: 6,
       title: '立案部长审核', // Was Node 11 (Dept Head Review), moved here
       role: 'secretary', // Or Dept Head
       roleLabel: '立案部长',
+      status: 'completed',
+      date: '2024-02-04 14:00',
+      summary: '已审核通过，建议主任提供推荐名单。'
+    },
+    {
+      id: 6.5,
+      title: '分管委领导', // Was Node 11 (Dept Head Review), moved here
+      role: 'secretary', // Or Dept Head
+      roleLabel: '分管委领导',
       status: 'completed',
       date: '2024-02-04 14:00',
       summary: '已审核通过，建议主任提供推荐名单。'

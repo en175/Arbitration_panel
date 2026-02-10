@@ -8,150 +8,116 @@
     </div>
 
     <div class="designate-container">
-      <!-- Top: Conflict Context -->
-      <div class="context-section animate-fade-in-up">
-        <el-alert
-          type="warning"
-          :closable="false"
-          show-icon
-          class="mb-4"
-        >
-          <template #title>
-            <span class="alert-title">需要主任介入指定</span>
-          </template>
-          <template #default>
-            <div class="alert-desc">
-              由于双方当事人对首席仲裁员的排序结果不一致（首选不同），且未能在规定时间内达成补充协议。根据仲裁规则，需由主任在推荐名单或名册外指定一名首席仲裁员。
-            </div>
-          </template>
-        </el-alert>
-
-        <div class="parties-card glass-card">
-          <div class="party-item">
-            <span class="label">申请人：</span>
-            <span class="value">广州市天河区高新科技发展有限公司</span>
+      <div class="list-section">
+        <div class="panel-header">
+          <h3>拟组庭人员名单</h3>
+          <div class="legend-group">
+            <div class="legend-item blue"><span class="dot"></span>系统推荐</div>
+            <div class="legend-item green"><span class="dot"></span>当事人选定</div>
+            <div class="legend-item orange"><span class="dot"></span>上一级审批人推荐</div>
+            <div class="legend-item red"><span class="dot"></span>变更前组庭仲裁员</div>
           </div>
-          <div class="divider-vertical"></div>
-          <div class="party-item">
-            <span class="label">被申请人：</span>
-            <span class="value">深圳市南山区创新投资合伙企业（有限合伙）</span>
+        </div>
+
+        <div class="candidate-list">
+          <div
+            v-for="(roleGroup, roleIndex) in displayTableData"
+            :key="roleIndex"
+            class="role-group-card"
+          >
+            <div class="role-badge">{{ roleGroup.role }}</div>
+
+            <div class="candidates-grid">
+              <div
+                v-for="person in roleGroup.candidates"
+                :key="person.name"
+                class="person-card"
+                :class="person.type"
+              >
+                <div v-if="person.selected" class="person-selected-tag">已选定</div>
+                <div v-else-if="person.selectedBy" class="person-selection-tag">
+                  {{ person.selectedBy === 'applicant' ? '申请人选定' : '被申请人选定' }}
+                </div>
+                <div class="person-avatar">
+                  {{ person.name.charAt(0) }}
+                </div>
+                <div class="person-info">
+                  <div class="person-name">{{ person.name }}</div>
+                  <div class="person-tags">
+                    <span v-for="tag in person.tags" :key="tag" class="tag">{{ tag }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="main-content-grid">
-        <!-- Left: Candidate Analysis -->
-        <div class="candidates-column animate-fade-in-up" style="animation-delay: 0.1s">
-          <div class="section-label">
-            <el-icon><Histogram /></el-icon> 推荐名单人选分析
-          </div>
-          
-          <!-- Option to pick from outside (Moved here) -->
-          <div class="external-option-top">
-            <el-button class="external-btn white-text-btn" :type="isExternal ? 'primary' : 'default'" @click="openExternalDialog">
-              <el-icon><Search /></el-icon> 从名册外其他仲裁员中指定
-            </el-button>
-          </div>
+        <div class="roster-column">
+          <div class="roster-card">
+            <div class="section-label">
+              <el-icon><Histogram /></el-icon> 仲裁员名册
+            </div>
+            <div class="dialog-search-header">
+              <el-input v-model="searchQuery" placeholder="输入姓名搜索..." prefix-icon="Search" class="search-input" />
+              <div class="filters">
+                <el-select v-model="filterDomain" placeholder="领域" clearable><el-option label="金融" value="finance" /></el-select>
+                <el-select v-model="filterEducation" placeholder="学历" clearable><el-option label="博士" value="phd" /></el-select>
+              </div>
+              <el-button type="primary" @click="handleSearch">查询</el-button>
+            </div>
 
-          <div class="candidate-cards">
-            <div 
-              v-for="candidate in candidates" 
-              :key="candidate.id"
-              class="candidate-card"
-              :class="{ 'selected': selectedId === candidate.id }"
-              @click="handleSelect(candidate)"
-            >
-              <div class="card-header-row">
-                <div class="avatar-box">
-                  {{ candidate.name.charAt(0) }}
-                </div>
-                <div class="info-box">
-                  <div class="name">{{ candidate.name }}</div>
-                  <div class="tags">
-                    <span v-for="tag in candidate.tags" :key="tag" class="tag">{{ tag }}</span>
+            <div class="dialog-grid">
+              <div
+                v-for="arb in displayArbitratorList"
+                :key="arb.name"
+                class="dialog-card"
+                :class="{ selected: activeCandidateName === arb.name }"
+              >
+                <div class="d-header">
+                  <div class="d-avatar">{{ arb.name.charAt(0) }}</div>
+                  <div class="d-info">
+                    <div class="d-name">{{ arb.name }}</div>
+                    <div class="d-meta">{{ arb.education }} · {{ arb.gender }}</div>
                   </div>
+                  <el-button
+                    circle
+                    type="primary"
+                    size="small"
+                    @click="selectArbitrator(arb)"
+                  ><el-icon><Select /></el-icon></el-button>
                 </div>
-              </div>
-              
-              <div class="card-stats">
-                <div class="stat-item">
-                  <div class="label">办案数</div>
-                  <div class="value">{{ candidate.cases }}</div>
+                <div class="d-tags">
+                  <span v-for="tag in arb.domains" :key="tag">{{ tag }}</span>
                 </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                  <div class="label">平均结案</div>
-                  <div class="value">{{ candidate.avgDays }}天</div>
-                </div>
-              </div>
-
-              <div class="selection-indicator" v-if="selectedId === candidate.id">
-                <el-icon><Check /></el-icon>
               </div>
             </div>
+          </div>
+          <div class="confirm-row">
+            <el-button type="primary" size="large" class="confirm-btn white-text-btn" @click="handleConfirm">
+              确认指定并签发
+            </el-button>
           </div>
         </div>
 
-        <!-- Right: Designation Action -->
-        <div class="action-column animate-fade-in-up" style="animation-delay: 0.2s">
-          <div class="designate-card">
-            <div class="card-title">指定决定书</div>
-            
-            <div class="empty-placeholder" v-if="!selectedCandidate">
-              <el-icon :size="48" color="#dcdfe6"><Stamp /></el-icon>
-              <p>请在左侧选择一名仲裁员<br>或指定名册外人选</p>
+        <div class="timeline-column">
+          <div class="info-card-modern oa-timeline-card">
+            <div class="card-header">
+              <span class="icon-wrapper"><el-icon><Operation /></el-icon></span>
+              <span class="title">OA审批流</span>
             </div>
-
-            <div v-else class="selected-preview">
-              <div class="preview-avatar">
-                <el-avatar :size="80" shape="square" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
-              </div>
-              <div class="preview-name">{{ selectedCandidate.name }}</div>
-              <div class="preview-role">拟任首席仲裁员</div>
-              
-              <!-- Detailed Info Grid -->
-              <div class="preview-details-grid">
-                 <div class="detail-item">
-                   <span class="label">学历</span>
-                   <span class="val">{{ selectedCandidate.education || '博士' }}</span>
-                 </div>
-                 <div class="detail-item">
-                   <span class="label">性别</span>
-                   <span class="val">{{ selectedCandidate.gender || '男' }}</span>
-                 </div>
-                 <div class="detail-item">
-                   <span class="label">办案</span>
-                   <span class="val">{{ selectedCandidate.cases }}件</span>
-                 </div>
-                 <div class="detail-item">
-                   <span class="label">所在地</span>
-                   <span class="val">广州</span>
-                 </div>
-                 <div class="detail-item full">
-                   <span class="label">擅长领域</span>
-                   <span class="val">{{ selectedCandidate.tags.join('、') }}</span>
-                 </div>
-                 <div class="detail-item full">
-                   <span class="label">职业背景</span>
-                   <span class="val">{{ selectedCandidate.career || '资深律师 / 仲裁员' }}</span>
-                 </div>
-              </div>
-
-              <el-form layout="vertical" class="reason-form">
-                <el-form-item label="指定理由说明">
-                  <el-input 
-                    type="textarea" 
-                    :rows="4" 
-                    placeholder="请输入指定理由（可选，内部归档用）..."
-                    v-model="reason"
-                  />
-                </el-form-item>
-              </el-form>
-
-              <div class="confirm-action">
-                <el-button type="primary" size="large" class="confirm-btn white-text-btn" @click="handleConfirm">
-                  确认指定并签发
-                </el-button>
+            <div class="oa-timeline">
+              <div v-for="(item, index) in oaTimeline" :key="index" class="oa-item">
+                <div class="oa-marker"></div>
+                <div class="oa-content">
+                  <div class="oa-title">
+                    <span class="oa-role">{{ item.role }}</span>
+                    <span class="oa-time">{{ item.time }}</span>
+                  </div>
+                  <div class="oa-opinion">{{ item.opinion }}</div>
+                  <div class="oa-recommend">{{ item.recommendation }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -162,41 +128,135 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { Histogram, Check, Search, Stamp } from '@element-plus/icons-vue'
+import { ref, computed } from 'vue'
+import { Histogram, Operation, Select } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useArbitration } from '../composables/useArbitration'
 
 const { setActiveNode } = useArbitration()
 
-const selectedId = ref(null)
-const selectedCandidate = ref(null)
-const isExternal = ref(false)
-const reason = ref('')
-
-const candidates = reactive([
-  { id: 'A001', name: '郭建国', tags: ['金融', '股权'], rankApp: 2, rankRes: 4, cases: 45, avgDays: 120, education: '博士', gender: '男' },
-  { id: 'A002', name: '陈雅芳', tags: ['公司法', '合同'], rankApp: 1, rankRes: 5, cases: 32, avgDays: 115, education: '硕士', gender: '女' },
-  { id: 'A003', name: '林志远', tags: ['民商事', '建设'], rankApp: 3, rankRes: 3, cases: 56, avgDays: 130, education: '博士', gender: '男' },
-  { id: 'A004', name: '梁伟诚', tags: ['国际贸易', '投资'], rankApp: 4, rankRes: 2, cases: 28, avgDays: 110, education: '博士', gender: '男' },
-  { id: 'A005', name: '叶晓琳', tags: ['知产', '技术'], rankApp: 5, rankRes: 1, cases: 39, avgDays: 125, education: '硕士', gender: '女' },
+const tableData = ref([
+  {
+    role: '首席(独任)',
+    candidates: [
+      { name: '郭建国', type: 'blue', tags: ['博士', '男', '金融证券'], selected: true }
+    ]
+  },
+  {
+    role: '仲裁员(边裁)',
+    candidates: [
+      { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
+    ]
+  },
+  {
+    role: '仲裁员(边裁)',
+    candidates: [
+      { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
+    ]
+  }
 ])
 
-const handleSelect = (candidate) => {
-  selectedId.value = candidate.id
-  selectedCandidate.value = candidate
-  isExternal.value = false
+const searchQuery = ref('')
+const filterDomain = ref('')
+const filterEducation = ref('')
+const activeCandidateName = ref('')
+
+const arbitratorList = [
+  { name: '梁伟诚', education: '博士', gender: '男', domains: ['国际贸易', '投资'] },
+  { name: '叶晓琳', education: '硕士', gender: '女', domains: ['知识产权', '技术'] },
+  { name: '冯德昌', education: '博士', gender: '男', domains: ['海商法'] },
+  { name: '孟淑华', education: '博士', gender: '女', domains: ['金融', '证券'] },
+  { name: '魏东海', education: '硕士', gender: '男', domains: ['房地产'] },
+  { name: '张明远', education: '博士', gender: '男', domains: ['房地产', '金融'] },
+  { name: '王建国', education: '硕士', gender: '男', domains: ['房地产', '证券'] },
+  { name: '李慧琳', education: '博士', gender: '女', domains: ['知识产权', '国贸'] }
+]
+
+const displayArbitratorList = computed(() => {
+  const query = searchQuery.value.trim()
+  const domainMap = { finance: '金融' }
+  const educationMap = { phd: '博士' }
+  const domainFilter = filterDomain.value ? (domainMap[filterDomain.value] || filterDomain.value) : ''
+  const educationFilter = filterEducation.value ? (educationMap[filterEducation.value] || filterEducation.value) : ''
+
+  return arbitratorList.filter((arb) => {
+    const matchName = !query || arb.name.includes(query)
+    const matchDomain = !domainFilter || (arb.domains || []).includes(domainFilter)
+    const matchEducation = !educationFilter || arb.education === educationFilter
+    return matchName && matchDomain && matchEducation
+  })
+})
+
+const displayTableData = computed(() => {
+  return tableData.value.map((roleGroup, index) => {
+    if (index !== 0) {
+      return roleGroup
+    }
+
+    if (!activeCandidateName.value) {
+      return {
+        ...roleGroup,
+        candidates: [
+          { name: '待选定', type: 'blue', tags: [] }
+        ]
+      }
+    }
+
+    const arb = arbitratorList.find((item) => item.name === activeCandidateName.value)
+    const tags = arb ? [arb.education, arb.gender, ...(arb.domains || [])] : []
+
+    return {
+      ...roleGroup,
+      candidates: [
+        { name: activeCandidateName.value, type: 'blue', tags, selected: true }
+      ]
+    }
+  })
+})
+
+const oaTimeline = [
+  {
+    role: '呈批人 · 秘书',
+    time: '2025-11-27 15:31:07',
+    opinion: '提交',
+    recommendation: '申请人未选定首席仲裁员，选定齐华修（君安世纪（台州））为仲裁员；被申请人未选定首席仲裁员，未选定仲裁员。'
+  },
+  {
+    role: '审批人 · 部门负责人',
+    time: '2025-11-27 16:10:24',
+    opinion: '同意推进',
+    recommendation: '建议主任优先采用推荐名单路径，结合当事人选定结果进行校验。'
+  },
+  {
+    role: '审批人 · 分管委领导',
+    time: '2025-11-27 17:05:12',
+    opinion: '通过',
+    recommendation: '同意，必要时补充涉外经验仲裁员。'
+  },
+  {
+    role: '当事人',
+    time: '2025-11-27 17:12:45',
+    opinion: '',
+    recommendation: '排序不一致，需主任指定。'
+  }
+]
+
+const selectArbitrator = (arb) => {
+  activeCandidateName.value = arb.name
 }
 
-const openExternalDialog = () => {
-  ElMessage.info('演示版：暂未开放名册外查询，请从推荐名单中选择。')
+const handleSearch = () => {
+  ElMessage.info('查询已更新')
 }
 
 const handleConfirm = () => {
-  if (!selectedCandidate.value) return
-  
+  if (!activeCandidateName.value) {
+    ElMessage.warning('请先在名册中选定仲裁员')
+    return
+  }
+
   ElMessageBox.confirm(
-    `确定指定 ${selectedCandidate.value.name} 为本案首席仲裁员吗？此操作不可撤销。`,
+    `确定指定 ${activeCandidateName.value} 为本案首席仲裁员吗？此操作不可撤销。`,
     '最终指定确认',
     {
       confirmButtonText: '确定指定',
@@ -206,7 +266,7 @@ const handleConfirm = () => {
   ).then(() => {
     ElMessage.success('指定成功，已生成组庭通知书')
     setTimeout(() => {
-      setActiveNode(12) // Go to Finish
+      setActiveNode(12)
     }, 1000)
   })
 }
@@ -239,69 +299,18 @@ const handleConfirm = () => {
   gap: 24px;
 }
 
-.context-section {
-  background: white;
-  border-radius: 12px;
-  padding: 4px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-}
-
-.alert-title {
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.alert-desc {
-  font-size: 13px;
-  line-height: 1.6;
-  margin-top: 8px;
-}
-
-.parties-card {
-  margin-top: 16px;
-  background: white;
-  border-radius: 8px;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  border: 1px solid #e2e8f0;
-}
-
-.party-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.party-item .label {
-  color: #64748b;
-  font-weight: 500;
-}
-
-.party-item .value {
-  color: #1e293b;
-  font-weight: 600;
-}
-
-.divider-vertical {
-  width: 1px;
-  height: 16px;
-  background: #cbd5e1;
-  margin: 0 24px;
-}
-
 .main-content-grid {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 24px;
   align-items: start;
 }
 
-.candidates-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.list-section {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03);
 }
 
 .section-label {
@@ -313,240 +322,378 @@ const handleConfirm = () => {
   gap: 8px;
 }
 
-.external-option-top {
-  margin-bottom: 8px;
-}
-
-.external-btn {
-  width: 100%;
-  justify-content: flex-start;
-}
-
-.candidate-cards {
+.panel-header {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.candidate-card {
-  background: white;
+.panel-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--arb-text-primary);
+}
+
+.legend-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--arb-text-secondary);
+}
+
+.legend-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-item.blue .dot { background: #409eff; }
+.legend-item.green .dot { background: #67c23a; }
+.legend-item.orange .dot { background: #e6a23c; }
+.legend-item.red .dot { background: #f56c6c; }
+
+.candidate-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+.role-group-card {
+  margin-bottom: 24px;
+}
+
+.role-badge {
+  display: inline-block;
+  background: #f8fafc;
+  color: var(--arb-text-secondary);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.candidates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.person-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
   border-radius: 12px;
-  padding: 16px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
+  border: 1px solid transparent;
+  transition: all 0.3s;
   position: relative;
   overflow: hidden;
 }
 
-.candidate-card:hover {
-  background: #f8fafc;
-  transform: translateX(4px);
+.person-selection-tag,
+.person-selected-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--arb-text-secondary);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
-.candidate-card.selected {
-  border-color: var(--arb-primary);
-  background: #eff6ff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+.person-selected-tag {
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
-.card-header-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
+.person-card.blue {
+  background: linear-gradient(145deg, #ecf5ff 0%, #fff 100%);
+  border-color: #d9ecff;
 }
 
-.avatar-box {
-  width: 40px;
-  height: 40px;
-  background: #3b82f6;
-  color: white;
-  border-radius: 8px;
+.person-card.green {
+  background: linear-gradient(145deg, #f0f9eb 0%, #fff 100%);
+  border-color: #e1f3d8;
+}
+
+.person-card.orange {
+  background: linear-gradient(145deg, #fdf6ec 0%, #fff 100%);
+  border-color: #faecd8;
+}
+
+.person-card.red {
+  background: linear-gradient(145deg, #fef2f2 0%, #fff 100%);
+  border-color: #fee2e2;
+}
+
+.person-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+}
+
+.person-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.info-box {
+.person-card.blue .person-avatar { background: linear-gradient(135deg, #409eff, #79bbff); }
+.person-card.green .person-avatar { background: linear-gradient(135deg, #67c23a, #95d475); }
+.person-card.orange .person-avatar { background: linear-gradient(135deg, #e6a23c, #f3d19e); }
+.person-card.red .person-avatar { background: linear-gradient(135deg, #f56c6c, #fca5a5); }
+
+.person-info { flex: 1; }
+
+.person-name {
+  font-weight: 600;
+  color: var(--arb-text-main);
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.person-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.person-tags .tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.8);
+  color: var(--arb-text-secondary);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.roster-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dialog-search-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 220px;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.dialog-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dialog-card.selected {
+  border-color: #409eff;
+  background: #f5faff;
+}
+
+.d-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.d-avatar {
+  width: 40px;
+  height: 40px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.d-info {
   flex: 1;
 }
 
-.name {
+.d-name {
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 4px;
 }
 
-.tags {
+.d-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.d-tags {
   display: flex;
-  gap: 4px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.tag {
-  font-size: 10px;
-  background: #f1f5f9;
-  padding: 2px 6px;
+.d-tags span {
+  font-size: 11px;
+  background: #f8fafc;
+  padding: 2px 8px;
   border-radius: 4px;
   color: #64748b;
 }
 
-.rank-badges {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: flex-end;
-}
-
-.rank-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: white;
-}
-
-.rank-badge.app { background: #3b82f6; }
-.rank-badge.res { background: #ec4899; }
-
-.card-stats {
-  display: flex;
-  background: rgba(255,255,255,0.5);
-  border-radius: 8px;
-  padding: 8px;
-}
-
-.stat-item {
-  flex: 1;
-  text-align: center;
-}
-
-.stat-item .label {
-  font-size: 10px;
-  color: #94a3b8;
-}
-
-.stat-item .value {
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-}
-
-.stat-divider {
-  width: 1px;
-  background: #e2e8f0;
-}
-
-.selection-indicator {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: var(--arb-primary);
-  color: white;
-  padding: 4px 8px;
-  border-bottom-left-radius: 8px;
-  font-size: 12px;
-}
-
-/* Designate Card */
-.designate-card {
+.info-card-modern {
   background: white;
-  border-radius: 16px;
-  padding: 32px;
-  min-height: 500px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0,0,0,0.02);
 }
 
-.card-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 32px;
-  text-align: center;
-  font-family: var(--arb-font-serif);
-}
-
-.empty-placeholder {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #cbd5e1;
-  text-align: center;
-}
-
-.selected-preview {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.preview-avatar {
+.oa-timeline-card .card-header {
   margin-bottom: 16px;
 }
 
-.preview-name {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 4px;
-}
-
-.preview-role {
-  font-size: 14px;
-  color: #64748b;
-  margin-bottom: 32px;
-  background: #f1f5f9;
-  padding: 4px 12px;
-  border-radius: 20px;
-}
-
-.preview-details-grid {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 32px;
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.detail-item {
+.oa-timeline {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
+  padding-left: 14px;
 }
 
-.detail-item.full {
-  grid-column: span 2;
+.oa-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: #e2e8f0;
 }
 
-.detail-item .label {
+.oa-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+}
+
+.oa-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--arb-primary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.oa-content {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.oa-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.oa-role {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--arb-text-primary);
+}
+
+.oa-time {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--arb-text-secondary);
 }
 
-.detail-item .val {
-  font-size: 14px;
+.oa-opinion {
+  font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: #0f172a;
+  margin-bottom: 6px;
 }
 
-.reason-form {
-  width: 100%;
-  margin-bottom: 24px;
+.oa-recommend {
+  font-size: 12px;
+  color: var(--arb-text-secondary);
+  line-height: 1.6;
 }
 
-.confirm-action {
-  width: 100%;
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.icon-wrapper {
+  width: 32px;
+  height: 32px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.title {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.confirm-row {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
 }
 
 .confirm-btn {
-  width: 100%;
+  width: 320px;
   height: 48px;
   font-size: 16px;
   font-weight: 600;
@@ -554,14 +701,5 @@ const handleConfirm = () => {
 
 .white-text-btn {
   color: #fff !important;
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.5s ease-out backwards;
-}
-
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 </style>

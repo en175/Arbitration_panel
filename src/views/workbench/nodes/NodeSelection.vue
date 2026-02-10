@@ -1,7 +1,7 @@
 <template>
   <div class="node-workspace">
     <div class="workspace-header">
-      <h2 class="gradient-text">组庭方式确认</h2>
+      <h2 class="gradient-text">首席仲裁员</h2>
     </div>
 
     <div class="workspace-content">
@@ -9,7 +9,7 @@
         <el-form :model="formData" label-position="top">
           <el-form-item>
             <template #label>
-              <span class="arb-form-label">请选择组庭方式</span>
+              <span class="arb-form-label">请选择首席仲裁员指定/选定方式</span>
             </template>
             <div class="selection-cards">
               <div 
@@ -20,8 +20,8 @@
                 <div class="icon-wrapper">
                   <el-icon :size="32" class="option-icon"><UserFilled /></el-icon>
                 </div>
-                <div class="card-title">共同选定首席</div>
-                <div class="card-desc">双方共同选定一名首席仲裁员，与各自选定的边裁组成合议庭。</div>
+                <div class="card-title">委托主任指定</div>
+                <div class="card-desc">委托主任指定一名首席仲裁员，与各自选定的边裁组成合议庭。</div>
                 <div class="check-mark" v-if="formData.mode === 'chief'">
                   <el-icon><Select /></el-icon>
                 </div>
@@ -36,8 +36,8 @@
                 <div class="icon-wrapper">
                   <el-icon :size="32" class="option-icon"><List /></el-icon>
                 </div>
-                <div class="card-title">推荐名单选定</div>
-                <div class="card-desc">由仲裁委提供推荐名单，双方进行排序，根据排序结果确定首席。</div>
+                <div class="card-title">共同选定</div>
+                <div class="card-desc">当事人双方共同选定一名首席仲裁员，选定不一致则由主任指定。</div>
                 <div class="check-mark" v-if="formData.mode === 'recommend'">
                   <el-icon><Select /></el-icon>
                 </div>

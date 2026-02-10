@@ -28,19 +28,22 @@
 
           <div class="candidate-list">
             <div 
-              v-for="(roleGroup, index) in tableData" 
-              :key="index"
+              v-for="(roleGroup, roleIndex) in tableData" 
+              :key="roleIndex"
               class="role-group-card"
             >
               <div class="role-badge">{{ roleGroup.role }}</div>
               
               <div class="candidates-grid">
                 <div 
-                  v-for="person in roleGroup.candidates" 
+                  v-for="(person, personIndex) in roleGroup.candidates" 
                   :key="person.name"
                   class="person-card"
                   :class="person.type"
                 >
+                  <div v-if="person.selectedBy" class="person-selection-tag">
+                    {{ person.selectedBy === 'applicant' ? '申请人选定' : '被申请人选定' }}
+                  </div>
                   <div class="person-avatar">
                     {{ person.name.charAt(0) }}
                   </div>
@@ -52,6 +55,14 @@
                       <span v-for="tag in person.tags" :key="tag" class="tag">{{ tag }}</span>
                     </div>
                   </div>
+                  <el-button
+                    v-if="person.type === 'blue'"
+                    circle
+                    type="primary"
+                    size="small"
+                    class="person-switch-btn"
+                    @click="openSwitchDialog(roleIndex, personIndex)"
+                  ><el-icon><RefreshLeft /></el-icon></el-button>
                 </div>
               </div>
             </div>
@@ -59,7 +70,7 @@
         </div>
 
         <!-- 右侧：审核操作 -->
-        <div class="right-panel">
+        <div class="right-panel" v-if="false">
           <!-- 智能检测卡片 -->
           <div class="ai-check-card warning">
             <div class="card-icon">
@@ -96,38 +107,170 @@
           </div>
         </div>
       </div>
+      <div class="audit-card glass-card">
+        <div class="audit-header">
+          <h3>审核意见</h3>
+          <div class="audit-switch">
+            <span>推荐名单</span>
+            <el-switch v-model="includeRecommendation" />
+          </div>
+        </div>
+        <el-input
+          v-model="comment"
+          type="textarea"
+          :rows="4"
+          placeholder="请输入审核意见..."
+          class="custom-textarea"
+        />
+        
+        <div class="audit-actions">
+          <el-button class="reject-btn" plain>
+            <el-icon><Close /></el-icon> 退回
+          </el-button>
+          <el-button type="primary" class="approve-btn" @click="submit">
+            <el-icon><Check /></el-icon> 同意并提交
+          </el-button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <el-dialog
+    v-model="showMoreDialog"
+    title="仲裁员名册查询"
+    width="900px"
+    append-to-body
+    class="custom-dialog-modern"
+  >
+    <div class="dialog-search-header">
+      <el-input v-model="searchQuery" placeholder="输入姓名搜索..." prefix-icon="Search" class="search-input" />
+      <div class="filters">
+        <el-select v-model="filterDomain" placeholder="领域" clearable><el-option label="金融" value="finance" /></el-select>
+        <el-select v-model="filterEducation" placeholder="学历" clearable><el-option label="博士" value="phd" /></el-select>
+      </div>
+      <el-button type="primary" @click="handleSearch">查询</el-button>
+    </div>
+
+    <div class="dialog-grid">
+      <div 
+        v-for="arb in displayArbitratorList" 
+        :key="arb.name" 
+        class="dialog-card"
+        :class="{ selected: activeCandidateName === arb.name }"
+      >
+        <div class="d-header">
+          <div class="d-avatar">{{ arb.name.charAt(0) }}</div>
+          <div class="d-info">
+            <div class="d-name">{{ arb.name }}</div>
+            <div class="d-meta">{{ arb.education }} · {{ arb.gender }}</div>
+          </div>
+          <el-button 
+            circle type="primary" size="small" 
+            @click="replaceFromDialog(arb)"
+          ><el-icon><Select /></el-icon></el-button>
+        </div>
+        <div class="d-tags">
+          <span v-for="tag in arb.domains" :key="tag">{{ tag }}</span>
+        </div>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Select, WarningFilled, Close, Check } from '@element-plus/icons-vue'
+import { Select, WarningFilled, Close, Check, RefreshLeft } from '@element-plus/icons-vue'
 
-const comment = ref('同意。建议转主任进行路径决策。')
+const comment = ref('同意。')
+const includeRecommendation = ref(false)
+const recommendationText = '建议主任采用推荐5人名单形式选择首席仲裁员'
 
-const tableData = [
+const tableData = ref([
   { 
     role: '首席(独任)', 
     candidates: [
-      { name: '郭建国', type: 'blue', tags: ['博士', '男', '金融证券'] }, // System Rec
-      { name: '陈雅芳', type: 'green', tags: ['硕士', '女', '公司法'] }  // Party Selected
+      { name: '郭建国', type: 'blue', tags: ['博士', '男', '金融证券'] },
+      // { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' },
+      // { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
+      
+      // { name: '陈雅芳', type: 'green', tags: ['硕士', '女', '公司法'] }  // Party Selected
     ]
   },
   { 
     role: '仲裁员(边裁)', 
     candidates: [
-      { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'] } // Party Selected
+      { name: '林志远', type: 'green', tags: ['学士', '男', '建设工程'], selectedBy: 'applicant' }
     ]
   },
   { 
     role: '仲裁员(边裁)', 
     candidates: [
-      { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'] } // Party Selected
+      { name: '梁伟诚', type: 'green', tags: ['硕士', '男', '国际贸易'], selectedBy: 'respondent' }
     ]
   }
+])
+
+const showMoreDialog = ref(false)
+const searchQuery = ref('')
+const filterDomain = ref('')
+const filterEducation = ref('')
+const activeTarget = ref(null)
+const activeCandidateName = ref('')
+
+const arbitratorList = [
+  { name: '梁伟诚', education: '博士', gender: '男', domains: ['国际贸易', '投资'] },
+  { name: '叶晓琳', education: '硕士', gender: '女', domains: ['知识产权', '技术'] },
+  { name: '冯德昌', education: '博士', gender: '男', domains: ['海商法'] },
+  { name: '孟淑华', education: '博士', gender: '女', domains: ['金融', '证券'] },
+  { name: '魏东海', education: '硕士', gender: '男', domains: ['房地产'] },
+  { name: '张明远', education: '博士', gender: '男', domains: ['房地产', '金融'] },
+  { name: '王建国', education: '硕士', gender: '男', domains: ['房地产', '证券'] },
+  { name: '李慧琳', education: '博士', gender: '女', domains: ['知识产权', '国贸'] }
 ]
+
+const displayArbitratorList = computed(() => {
+  const query = searchQuery.value.trim()
+  const domainMap = { finance: '金融' }
+  const educationMap = { phd: '博士' }
+  const domainFilter = filterDomain.value ? (domainMap[filterDomain.value] || filterDomain.value) : ''
+  const educationFilter = filterEducation.value ? (educationMap[filterEducation.value] || filterEducation.value) : ''
+
+  return arbitratorList.filter((arb) => {
+    const matchName = !query || arb.name.includes(query)
+    const matchDomain = !domainFilter || (arb.domains || []).includes(domainFilter)
+    const matchEducation = !educationFilter || arb.education === educationFilter
+    return matchName && matchDomain && matchEducation
+  })
+})
+
+const openSwitchDialog = (roleIndex, personIndex) => {
+  activeTarget.value = { roleIndex, personIndex }
+  activeCandidateName.value = tableData.value[roleIndex].candidates[personIndex]?.name || ''
+  showMoreDialog.value = true
+}
+
+const buildTags = (arb) => {
+  const baseTags = [arb.education || '博士', arb.gender || '男']
+  const domainTags = arb.domains && arb.domains.length ? arb.domains : ['综合']
+  return [...baseTags, ...domainTags]
+}
+
+const replaceFromDialog = (arb) => {
+  if (!activeTarget.value) return
+  const { roleIndex, personIndex } = activeTarget.value
+  const target = tableData.value[roleIndex]?.candidates?.[personIndex]
+  if (!target) return
+  target.name = arb.name
+  target.tags = buildTags(arb)
+  activeCandidateName.value = arb.name
+  showMoreDialog.value = false
+  ElMessage.success(`已切换为 ${arb.name}`)
+}
+
+const handleSearch = () => {
+  ElMessage.info('查询已更新')
+}
 
 const promptDirector = () => {
   ElMessage.success('已发送提示给主任：建议使用推荐名单路径。')
@@ -136,6 +279,26 @@ const promptDirector = () => {
 const submit = () => {
   ElMessage.success('审核完成，流程流转至主任端。')
 }
+
+const removeRecommendationLine = (value) => {
+  return value
+    .split('\n')
+    .filter((line) => line.trim() !== recommendationText)
+    .join('\n')
+    .trim()
+}
+
+watch(includeRecommendation, (enabled) => {
+  if (enabled) {
+    if (!comment.value.includes(recommendationText)) {
+      comment.value = comment.value ? `${comment.value}\n${recommendationText}` : recommendationText
+    }
+    return
+  }
+  if (comment.value.includes(recommendationText)) {
+    comment.value = removeRecommendationLine(comment.value)
+  }
+})
 </script>
 
 <style scoped>
@@ -199,7 +362,7 @@ const submit = () => {
 
 .review-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr;
   gap: 24px;
 }
 
@@ -247,6 +410,11 @@ const submit = () => {
 .legend-item.orange .dot { background: #e6a23c; }
 .legend-item.red .dot { background: #f56c6c; }
 
+.candidate-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
 .role-group-card {
   margin-bottom: 24px;
 }
@@ -277,6 +445,18 @@ const submit = () => {
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
+}
+
+.person-selection-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--arb-text-secondary);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 .person-card.blue {
@@ -334,6 +514,10 @@ const submit = () => {
   box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 }
 
+.person-switch-btn {
+  flex-shrink: 0;
+}
+
 /* Right Panel */
 .right-panel {
   display: flex;
@@ -384,9 +568,26 @@ const submit = () => {
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.03);
   flex: 1;
+  margin-top: 16px;
 }
 
-.audit-card h3 { margin: 0 0 16px 0; font-size: 16px; }
+.audit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.audit-card h3 { margin: 0; font-size: 16px; }
+
+.audit-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--arb-text-secondary);
+  font-size: 13px;
+}
 
 .custom-textarea :deep(.el-textarea__inner) {
   background: #f8fafc;
@@ -412,5 +613,89 @@ const submit = () => {
 .approve-btn {
   background: var(--arb-gradient-primary);
   border: none;
+}
+
+.dialog-search-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 220px;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.dialog-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dialog-card.selected {
+  border-color: #409eff;
+  background: #f5faff;
+}
+
+.d-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.d-avatar {
+  width: 40px;
+  height: 40px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.d-info {
+  flex: 1;
+}
+
+.d-name {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.d-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.d-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.d-tags span {
+  font-size: 11px;
+  background: #f8fafc;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #64748b;
 }
 </style>
