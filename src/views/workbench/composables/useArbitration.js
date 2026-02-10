@@ -3,6 +3,7 @@ import { reactive, computed } from 'vue'
 const state = reactive({
   currentUser: 'party', // party, secretary, director, arbitrator
   currentRoleLabel: '当事人',
+  formationMethod: '',
   
   caseInfo: {
     caseNo: '穗仲案字[2024]第12345号',
@@ -142,6 +143,34 @@ const state = reactive({
       roleLabel: '秘书',
       status: 'pending',
       summary: '待审批通过后发送通知。'
+    },
+    {
+      id: 13,
+      title: '边裁共同选定首裁',
+      role: 'arbitrator',
+      roleLabel: '仲裁员',
+      status: 'pending',
+      summary: '等待两名边裁在期限内共同选定首裁。',
+      data: {
+        deadline: '2024-02-10 23:59',
+        arbitrators: [
+          { id: 'ARB_A', name: '林志远', side: '申请人选定', submitted: false, selectedCandidateId: '' },
+          { id: 'ARB_B', name: '梁伟诚', side: '被申请人选定', submitted: false, selectedCandidateId: '' }
+        ],
+        candidates: [
+          { id: 'C001', name: '郭建国', tags: ['金融', '股权'] },
+          { id: 'C002', name: '陈雅芳', tags: ['公司法', '合同'] },
+          { id: 'C003', name: '叶晓琳', tags: ['知识产权', '技术'] }
+        ]
+      }
+    },
+    {
+      id: 14,
+      title: '边裁选首裁结果',
+      role: 'system',
+      roleLabel: '系统',
+      status: 'pending',
+      summary: '根据两名边裁提交的选择结果生成一致性结论。'
     }
   ],
 
@@ -161,6 +190,10 @@ export function useArbitration() {
       dept_head: '部门负责人'
     }
     state.currentRoleLabel = labels[role]
+  }
+
+  const setFormationMethod = (method) => {
+    state.formationMethod = method
   }
 
   // Action: Submit Sort (Party)
@@ -203,6 +236,7 @@ export function useArbitration() {
   return {
     state,
     switchRole,
+    setFormationMethod,
     submitSort,
     completeSortNode,
     activeNode,

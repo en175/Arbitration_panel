@@ -46,6 +46,7 @@
           :class="{
             clickable: Boolean(n.targetId),
             active: Boolean(n.targetId) && n.targetId === activeNodeId,
+            selected: isMethodSelected(n.key),
             group: n.kind === 'group',
             approve: n.kind === 'approve',
             primary: n.kind === 'primary'
@@ -88,6 +89,10 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  formationMethod: {
+    type: String,
+    default: ''
+  },
   timelineNodes: {
     type: Array,
     required: true
@@ -101,6 +106,16 @@ const roleLabelByTargetId = (targetId) => {
   return match?.roleLabel || ''
 }
 
+const isMethodSelected = (key) => {
+  if (!props.formationMethod) return false
+  const map = {
+    joint_agreed: 'a-entry',
+    delegate_arbitrators: 'b-entry',
+    not_agreed: 'c-entry'
+  }
+  return map[props.formationMethod] === key
+}
+
 const canvasSize = {
   w: 4200,
   h: 760
@@ -108,27 +123,27 @@ const canvasSize = {
 
 const baseNodes = [
   { key: 'n-start', label: '组庭启动', targetId: 1, kind: 'primary', x: 80, y: 340, w: 220, h: 56 },
-  { key: 'g-ways', label: '三种方式', kind: 'group', x: 340, y: 346, w: 220, h: 44 },
+  { key: 'g-ways', label: '三种方式', kind: 'group', roleLabel: '秘书', x: 340, y: 346, w: 220, h: 44 },
 
-  { key: 'a-entry', label: '首席+边裁都已选定', targetId: 6, kind: 'primary', x: 620, y: 160, w: 260, h: 56 },
-  { key: 'a-dept', label: '部门负责人审批', targetId: 6, kind: 'approve', x: 940, y: 160, w: 240, h: 56 },
-  { key: 'a-lead', label: '分管委领导审批', targetId: 6.5, kind: 'approve', x: 1240, y: 160, w: 240, h: 56 },
-  { key: 'a-dir', label: '主任最终指定/确认', targetId: 11, kind: 'approve', x: 1540, y: 160, w: 260, h: 56 },
+  { key: 'a-entry', label: '当事人双方约定共同选定边裁+首裁', targetId: 6, kind: 'primary', x: 620, y: 160, w: 320, h: 56 },
+  { key: 'a-dept', label: '部门负责人审批', targetId: 6, kind: 'approve', x: 980, y: 160, w: 240, h: 56 },
+  { key: 'a-lead', label: '分管委领导审批', targetId: 6.5, kind: 'approve', x: 1280, y: 160, w: 240, h: 56 },
+  { key: 'a-dir', label: '主任最终指定/确认', targetId: 11, kind: 'approve', x: 1580, y: 160, w: 260, h: 56 },
 
-  { key: 'b-entry', label: '当事人委托边裁选择首席', targetId: 2, kind: 'primary', x: 620, y: 340, w: 280, h: 56 },
+  { key: 'b-entry', label: '当事人委托边裁选择首裁', targetId: 2, kind: 'primary', x: 620, y: 340, w: 280, h: 56 },
   { key: 'b-nominate', label: '当事人选择边裁', targetId: 2, kind: 'primary', x: 940, y: 340, w: 220, h: 56 },
-  { key: 'g-b-cons', label: '当事人选择边裁是否一致', kind: 'group', x: 1200, y: 346, w: 260, h: 44 },
+  { key: 'g-b-cons', label: '当事人选择边裁是否一致', kind: 'group', roleLabel: '系统', x: 1200, y: 346, w: 260, h: 44 },
   { key: 'b-yes', label: '一致', targetId: 7, kind: 'primary', x: 1520, y: 280, w: 180, h: 52 },
   { key: 'b-no', label: '不一致', targetId: 6, kind: 'primary', x: 1520, y: 400, w: 180, h: 52 },
 
   { key: 'b-review', label: '主任审核', targetId: 7, kind: 'approve', x: 1760, y: 280, w: 200, h: 56 },
   { key: 'b-return', label: '退回', targetId: 2, kind: 'primary', x: 1760, y: 360, w: 200, h: 56 },
   { key: 'b-confirm', label: '确认边裁', targetId: 7, kind: 'approve', x: 2000, y: 280, w: 200, h: 56 },
-  { key: 'b-notify', label: '通知边裁限期共同选定首席', targetId: 3, kind: 'primary', x: 2240, y: 280, w: 300, h: 56 },
+  { key: 'b-notify', label: '通知边裁限期共同选定首裁', targetId: 13, kind: 'primary', x: 2240, y: 280, w: 300, h: 56 },
 
-  { key: 'g-b-chief', label: '边裁选择首席结果是否一致', kind: 'group', x: 2580, y: 286, w: 260, h: 44 },
-  { key: 'b-chief-yes', label: '一致', targetId: 11, kind: 'approve', x: 2880, y: 240, w: 180, h: 52 },
-  { key: 'b-chief-no', label: '不一致', targetId: 6, kind: 'approve', x: 2880, y: 320, w: 180, h: 52 },
+  { key: 'g-b-chief', label: '边裁选择首裁结果是否一致', kind: 'group', roleLabel: '系统', x: 2580, y: 286, w: 280, h: 44 },
+  { key: 'b-chief-yes', label: '一致', targetId: 14, kind: 'approve', x: 2880, y: 240, w: 180, h: 52 },
+  { key: 'b-chief-no', label: '不一致', targetId: 14, kind: 'approve', x: 2880, y: 320, w: 180, h: 52 },
   { key: 'b-chief-final', label: '首席确认', targetId: 11, kind: 'approve', x: 3120, y: 240, w: 200, h: 56 },
   { key: 'b-chief-dept', label: '部门负责人推荐', targetId: 6, kind: 'approve', x: 3120, y: 320, w: 220, h: 56 },
   { key: 'b-chief-lead', label: '分管委领导推荐', targetId: 6.5, kind: 'approve', x: 3380, y: 320, w: 220, h: 56 },
@@ -137,10 +152,10 @@ const baseNodes = [
   { key: 'b-side-dept', label: '部门负责人推荐边裁', targetId: 6, kind: 'approve', x: 1760, y: 440, w: 240, h: 56 },
   { key: 'b-side-lead', label: '分管委领导推荐边裁', targetId: 6.5, kind: 'approve', x: 2040, y: 440, w: 240, h: 56 },
   { key: 'b-side-dir', label: '主任确认边裁', targetId: 7, kind: 'approve', x: 2320, y: 440, w: 220, h: 56 },
-  { key: 'b-side-notify', label: '通知边裁限期共同选定首席', targetId: 3, kind: 'primary', x: 2580, y: 440, w: 300, h: 56 },
+  { key: 'b-side-notify', label: '通知边裁限期共同选定首裁', targetId: 13, kind: 'primary', x: 2580, y: 440, w: 300, h: 56 },
 
-  { key: 'c-entry', label: '当事人选择边裁', targetId: 2, kind: 'primary', x: 620, y: 520, w: 220, h: 56 },
-  { key: 'g-c-method', label: '当事人选择首席组成方式', kind: 'group', x: 900, y: 526, w: 260, h: 44 },
+  { key: 'c-entry', label: '当事人未约定一致', targetId: 2, kind: 'primary', x: 620, y: 520, w: 220, h: 56 },
+  { key: 'g-c-method', label: '当事人选择首席组成方式', kind: 'group', roleLabel: '当事人', x: 900, y: 526, w: 260, h: 44 },
   { key: 'c-delegate', label: '委托边裁选定首席', targetId: 2, kind: 'primary', x: 1220, y: 480, w: 240, h: 56 },
   { key: 'c-joint', label: '双方当事人共同选定', targetId: 3, kind: 'primary', x: 1220, y: 552, w: 240, h: 56 },
   { key: 'c-director', label: '委托主任选定/指定', targetId: 7, kind: 'primary', x: 1220, y: 624, w: 240, h: 56 }
@@ -526,6 +541,11 @@ watch(
   transform: translateY(-2px);
   border-color: rgba(30, 58, 138, 0.28);
   box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+}
+
+.bn-card.selected {
+  border-color: rgba(180, 83, 9, 0.55);
+  box-shadow: 0 18px 38px rgba(180, 83, 9, 0.14);
 }
 
 .bn-card.active {

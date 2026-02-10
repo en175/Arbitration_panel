@@ -44,31 +44,19 @@
       </div>
     </header>
 
-    <!-- 2. Timeline / Branch Map Switcher -->
+    <!-- 2. Branch Canvas Navigation -->
     <div class="timeline-area glass-card animate-fade-in-up" style="animation-delay: 0.1s">
       <div class="nav-panel">
         <div class="nav-panel-left">
           <div class="nav-panel-title">流程导航</div>
         </div>
-        <div class="nav-panel-right">
-          <el-radio-group v-model="navMode" size="small" class="nav-toggle">
-            <el-radio-button value="timeline">时间轴</el-radio-button>
-            <el-radio-button value="branch">分支图</el-radio-button>
-          </el-radio-group>
-        </div>
       </div>
 
-      <div v-if="navMode === 'timeline'" class="nav-content">
-        <HorizontalTimeline 
-          :nodes="state.timelineNodes" 
-          :active-node-id="state.activeNodeId"
-          @select="handleNodeSelect"
-        />
-      </div>
-      <div v-else class="nav-content nav-content-branch">
+      <div class="nav-content nav-content-branch">
         <ArbBranchCanvas
           :active-node-id="state.activeNodeId"
           :timeline-nodes="state.timelineNodes"
+          :formation-method="state.formationMethod"
           @select="handleCanvasSelect"
         />
       </div>
@@ -95,10 +83,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { Calendar } from '@element-plus/icons-vue'
 import { useArbitration } from './composables/useArbitration'
-import HorizontalTimeline from './components/HorizontalTimeline.vue'
 import ArbBranchCanvas from '../../modules/branch-tree/ArbBranchCanvas.vue'
 
 // Import Node Components
@@ -115,13 +102,10 @@ import NodeReview from './nodes/NodeReview.vue'
 import NodeReviewLeadership from './nodes/NodeReviewLeadership.vue'
 import NodeDirectorDesignate from './nodes/NodeDirectorDesignate.vue' // Node 11
 import NodeFinish from './nodes/NodeFinish.vue'       // Node 12
+import NodeArbChiefChoose from './nodes/NodeArbChiefChoose.vue'
+import NodeArbChiefResult from './nodes/NodeArbChiefResult.vue'
 
 const { state, viewingNode, setActiveNode } = useArbitration()
-const navMode = ref('timeline')
-
-const handleNodeSelect = (node) => {
-  setActiveNode(node.id)
-}
 
 const handleCanvasSelect = (id) => {
   setActiveNode(id)
@@ -143,6 +127,8 @@ const currentNodeComponent = computed(() => {
     case 10: return NodeResult    // Was 9
     case 11: return NodeDirectorDesignate // New Node
     case 12: return NodeFinish    // Was 11
+    case 13: return NodeArbChiefChoose
+    case 14: return NodeArbChiefResult
     default: return null
   }
 })
@@ -407,24 +393,6 @@ const currentNodeComponent = computed(() => {
   font-weight: 700;
   color: var(--arb-text-primary);
   font-family: var(--arb-font-serif);
-}
-
-.nav-toggle :deep(.el-radio-button__inner) {
-  border-color: rgba(30, 58, 138, 0.18);
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 6px 14px;
-}
-
-.nav-toggle :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.92), rgba(59, 130, 246, 0.88));
-  border-color: transparent;
-  box-shadow: 0 10px 28px rgba(30, 58, 138, 0.22);
-}
-
-.nav-toggle :deep(.el-radio-button__inner:hover) {
-  border-color: rgba(30, 58, 138, 0.32);
 }
 
 .nav-content {
