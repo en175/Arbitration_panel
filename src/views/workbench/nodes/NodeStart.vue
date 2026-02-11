@@ -14,15 +14,15 @@
         <div class="info-grid">
           <div class="info-item">
             <span class="label">案号</span>
-            <span class="value value-highlight">穗仲案字[2024]第12345号</span>
+            <span class="value value-highlight">{{ state.caseInfo.caseNo }}</span>
           </div>
           <div class="info-item">
             <span class="label">案由</span>
-            <span class="value">股权转让纠纷</span>
+            <span class="value">{{ state.caseInfo.caseReason }}</span>
           </div>
           <div class="info-item">
             <span class="label">标的额</span>
-            <span class="value value-money">¥ 5,000,000.00</span>
+            <span class="value value-money">{{ state.caseInfo.amount }}</span>
           </div>
           <div class="info-item">
             <span class="label">适用程序</span>
@@ -30,7 +30,7 @@
           </div>
           <div class="info-item">
             <span class="label">拟定庭型</span>
-            <span class="value">合议庭</span>
+            <span class="value">{{ state.caseInfo.courtType }}</span>
           </div>
           <div class="info-item">
             <span class="label">经办秘书</span>
@@ -39,23 +39,45 @@
               <span>张秘书</span>
             </div>
           </div>
+          <div class="info-item info-item-span2">
+            <span class="label">申请人</span>
+            <span class="value value-long">{{ state.caseInfo.members.applicant }}</span>
+          </div>
+          <div class="info-item info-item-span2">
+            <span class="label">被申请人</span>
+            <span class="value value-long">{{ state.caseInfo.members.respondent }}</span>
+          </div>
         </div>
 
         <div class="method-card glass-card">
           <div class="method-header">
             <h4 class="arb-section-title">选择组庭方式</h4>
-            <div class="method-hint">选择后用于明确后续流程分支</div>
           </div>
           <div class="method-grid">
-            <button class="method-item" type="button" @click="selectMethod('joint_agreed')">
+            <button
+              class="method-item"
+              :class="{ active: state.formationMethod === 'joint_agreed' }"
+              type="button"
+              @click="selectMethod('joint_agreed')"
+            >
               <div class="method-title">当事人双方约定共同选定边裁+首裁</div>
               <div class="method-desc">当事人已达成一致意见，双方共同选定边裁与首裁后进入后续确认/审批。</div>
             </button>
-            <button class="method-item" type="button" @click="selectMethod('delegate_arbitrators')">
+            <button
+              class="method-item"
+              :class="{ active: state.formationMethod === 'delegate_arbitrators' }"
+              type="button"
+              @click="selectMethod('delegate_arbitrators')"
+            >
               <div class="method-title">当事人委托边裁选择首裁</div>
               <div class="method-desc">当事人先选定边裁，由两名边裁在期限内共同选定首裁，无法一致则进入后续处理。</div>
             </button>
-            <button class="method-item" type="button" @click="selectMethod('not_agreed')">
+            <button
+              class="method-item"
+              :class="{ active: state.formationMethod === 'not_agreed' }"
+              type="button"
+              @click="selectMethod('not_agreed')"
+            >
               <div class="method-title">当事人未约定一致</div>
               <div class="method-desc">当事人未能形成一致约定，按规则进入边裁选定与首裁产生机制分支。</div>
             </button>
@@ -63,9 +85,7 @@
         </div>
 
         <div class="action-log-wrapper">
-          <div class="section-header">
-            <h4 class="arb-section-title">处理记录</h4>
-          </div>
+          <h4 class="arb-section-title">处理记录</h4>
           <el-timeline class="custom-timeline">
             <el-timeline-item timestamp="2024-02-01 10:00" placement="top" type="primary" size="large" hollow>
               <div class="log-card">
@@ -89,7 +109,7 @@ defineProps(['nodeData'])
 import { ElMessage } from 'element-plus'
 import { useArbitration } from '../composables/useArbitration'
 
-const { setActiveNode, setFormationMethod } = useArbitration()
+const { state, setActiveNode, setFormationMethod } = useArbitration()
 
 const selectMethod = (method) => {
   setFormationMethod(method)
@@ -159,6 +179,10 @@ const selectMethod = (method) => {
   gap: 8px;
 }
 
+.info-item-span2 {
+  grid-column: 1 / -1;
+}
+
 .label {
   font-size: 14px;
   color: var(--arb-text-secondary);
@@ -170,6 +194,15 @@ const selectMethod = (method) => {
   color: var(--arb-text-main);
   font-weight: 600;
   line-height: 1.4;
+}
+
+.value-long {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
 }
 
 .value-highlight {
@@ -215,11 +248,6 @@ const selectMethod = (method) => {
   margin-bottom: 16px;
 }
 
-.method-hint {
-  font-size: 12px;
-  color: var(--arb-text-secondary);
-}
-
 .method-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -230,23 +258,70 @@ const selectMethod = (method) => {
   text-align: left;
   border-radius: 16px;
   padding: 18px 18px 16px;
-  border: 1px solid rgba(30, 58, 138, 0.14);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.58));
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(191, 219, 254, 0.22);
+  background:
+    radial-gradient(circle at 16% 16%, rgba(255, 255, 255, 0.22), transparent 44%),
+    radial-gradient(circle at 78% 24%, rgba(147, 197, 253, 0.22), transparent 52%),
+    linear-gradient(135deg, rgba(30, 58, 138, 0.96), rgba(37, 99, 235, 0.80));
+  box-shadow:
+    0 18px 40px rgba(2, 6, 23, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    inset 0 -1px 0 rgba(15, 23, 42, 0.25);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.method-item::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.14) 22%, transparent 45%),
+    radial-gradient(circle at 30% 12%, rgba(219, 234, 254, 0.16), transparent 46%);
+  opacity: 0.9;
+  transform: translateX(-32%);
+  pointer-events: none;
+  transition: transform 0.28s ease, opacity 0.28s ease;
+}
+
+.method-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 120%, rgba(191, 219, 254, 0.22), transparent 55%);
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 .method-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.10);
-  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow:
+    0 22px 56px rgba(2, 6, 23, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(15, 23, 42, 0.25);
+  border-color: rgba(191, 219, 254, 0.42);
+}
+
+.method-item:hover::before {
+  transform: translateX(18%);
+  opacity: 1;
+}
+
+.method-item.active {
+  border-color: rgba(147, 197, 253, 0.72);
+  box-shadow:
+    0 26px 64px rgba(2, 6, 23, 0.30),
+    0 0 0 3px rgba(59, 130, 246, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(15, 23, 42, 0.25);
 }
 
 .method-title {
   font-size: 14px;
   font-weight: 700;
-  color: var(--arb-text-main);
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.35;
   margin-bottom: 8px;
 }
@@ -254,7 +329,7 @@ const selectMethod = (method) => {
 .method-desc {
   font-size: 12px;
   line-height: 1.55;
-  color: var(--arb-text-secondary);
+  color: rgba(226, 232, 240, 0.92);
 }
 
 /* Action Log */
@@ -262,32 +337,16 @@ const selectMethod = (method) => {
   padding: 0 16px;
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  position: relative;
-  padding-left: 16px;
-}
-
-.section-header::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 4px;
-  height: 24px;
-  background: var(--arb-primary);
-  border-radius: 2px;
-  transform: translateY(-50%);
-}
-
 .arb-section-title {
   font-size: 20px;
   font-weight: 700;
   margin: 0;
   color: var(--arb-text-main);
+}
+
+.arb-section-title::before {
+  content: none;
+  display: none;
 }
 
 .custom-timeline {

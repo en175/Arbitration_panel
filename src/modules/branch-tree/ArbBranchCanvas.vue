@@ -1,73 +1,75 @@
 <template>
-  <div
-    ref="viewportRef"
-    class="branch-canvas"
-    :class="{ panning: isPanning }"
-    @pointerdown="onPointerDown"
-    @pointermove="onPointerMove"
-    @pointerup="onPointerUp"
-    @pointercancel="onPointerUp"
-    @pointerleave="onPointerUp"
-  >
-    <div class="scroll-space" :style="scrollSpaceStyle">
-      <div
-        ref="contentRef"
-        class="canvas-content"
-        :style="contentStyle"
-      >
-        <svg class="canvas-edges" :width="canvasSize.w" :height="canvasSize.h">
-          <defs>
-            <marker
-              id="arrowHead"
-              markerWidth="10"
-              markerHeight="10"
-              refX="9"
-              refY="5"
-              orient="auto"
-              markerUnits="strokeWidth"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(30, 58, 138, 0.35)" />
-            </marker>
-          </defs>
-
-          <path
-            v-for="e in edges"
-            :key="e.key"
-            :d="e.d"
-            :class="['edge-path', e.variant]"
-            marker-end="url(#arrowHead)"
-          />
-        </svg>
-
+  <div class="branch-canvas-shell">
+    <div
+      ref="viewportRef"
+      class="branch-canvas-viewport"
+      :class="{ panning: isPanning }"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
+      @pointercancel="onPointerUp"
+      @pointerleave="onPointerUp"
+    >
+      <div class="scroll-space" :style="scrollSpaceStyle">
         <div
-          v-for="n in nodes"
-          :key="n.key"
-          class="bn-card"
-          :class="{
-            clickable: Boolean(n.targetId),
-            active: Boolean(n.targetId) && n.targetId === activeNodeId,
-            selected: isMethodSelected(n.key),
-            group: n.kind === 'group',
-            approve: n.kind === 'approve',
-            primary: n.kind === 'primary'
-          }"
-          :style="{
-            left: `${n.x}px`,
-            top: `${n.y}px`,
-            width: `${n.w}px`,
-            height: `${n.h}px`
-          }"
-          @click="onNodeClick(n)"
+          ref="contentRef"
+          class="canvas-content"
+          :style="contentStyle"
         >
-          <div class="bn-title">{{ n.label }}</div>
-          <el-tag
-            v-if="n.roleLabel"
-            size="small"
-            effect="plain"
-            class="bn-role"
+          <svg class="canvas-edges" :width="canvasSize.w" :height="canvasSize.h">
+            <defs>
+              <marker
+                id="arrowHead"
+                markerWidth="10"
+                markerHeight="10"
+                refX="9"
+                refY="5"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(30, 58, 138, 0.35)" />
+              </marker>
+            </defs>
+
+            <path
+              v-for="e in edges"
+              :key="e.key"
+              :d="e.d"
+              :class="['edge-path', e.variant]"
+              marker-end="url(#arrowHead)"
+            />
+          </svg>
+
+          <div
+            v-for="n in nodes"
+            :key="n.key"
+            class="bn-card"
+            :class="{
+              clickable: Boolean(n.targetId),
+              active: Boolean(n.targetId) && n.targetId === activeNodeId,
+              selected: isMethodSelected(n.key),
+              group: n.kind === 'group',
+              approve: n.kind === 'approve',
+              primary: n.kind === 'primary'
+            }"
+            :style="{
+              left: `${n.x}px`,
+              top: `${n.y}px`,
+              width: `${n.w}px`,
+              height: `${n.h}px`
+            }"
+            @click="onNodeClick(n)"
           >
-            {{ n.roleLabel }}
-          </el-tag>
+            <div class="bn-title">{{ n.label }}</div>
+            <el-tag
+              v-if="n.roleLabel"
+              size="small"
+              effect="plain"
+              class="bn-role"
+            >
+              {{ n.roleLabel }}
+            </el-tag>
+          </div>
         </div>
       </div>
     </div>
@@ -278,8 +280,12 @@ const onPointerDown = (event) => {
   const viewport = viewportRef.value
   if (viewport) {
     const rect = viewport.getBoundingClientRect()
-    const inVScrollbar = rect.right - event.clientX < 14
-    const inHScrollbar = rect.bottom - event.clientY < 14
+    const hasV = viewport.scrollHeight > viewport.clientHeight + 1
+    const hasH = viewport.scrollWidth > viewport.clientWidth + 1
+    const vBar = hasV ? Math.max(viewport.offsetWidth - viewport.clientWidth, 12) : 0
+    const hBar = hasH ? Math.max(viewport.offsetHeight - viewport.clientHeight, 12) : 0
+    const inVScrollbar = hasV && rect.right - event.clientX < vBar
+    const inHScrollbar = hasH && rect.bottom - event.clientY < hBar
     if (inVScrollbar || inHScrollbar) return
   }
   isPanning.value = true
@@ -403,7 +409,14 @@ watch(
 </script>
 
 <style scoped>
-.branch-canvas {
+.branch-canvas-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.branch-canvas-viewport {
+  --branch-scrollbar-size: 14px;
   position: relative;
   width: 100%;
   height: 100%;
@@ -415,31 +428,31 @@ watch(
   -webkit-backdrop-filter: blur(16px);
   cursor: grab;
   scrollbar-gutter: stable both-edges;
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: rgba(30, 58, 138, 0.28) rgba(255, 255, 255, 0.35);
 }
 
-.branch-canvas.panning {
+.branch-canvas-viewport.panning {
   cursor: grabbing;
 }
 
-.branch-canvas::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+.branch-canvas-viewport::-webkit-scrollbar {
+  width: var(--branch-scrollbar-size);
+  height: var(--branch-scrollbar-size);
 }
 
-.branch-canvas::-webkit-scrollbar-track {
+.branch-canvas-viewport::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.35);
   border-radius: 999px;
 }
 
-.branch-canvas::-webkit-scrollbar-thumb {
+.branch-canvas-viewport::-webkit-scrollbar-thumb {
   background: rgba(30, 58, 138, 0.22);
   border-radius: 999px;
   border: 2px solid rgba(255, 255, 255, 0.35);
 }
 
-.branch-canvas::-webkit-scrollbar-thumb:hover {
+.branch-canvas-viewport::-webkit-scrollbar-thumb:hover {
   background: rgba(30, 58, 138, 0.32);
 }
 
